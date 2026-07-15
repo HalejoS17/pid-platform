@@ -87,9 +87,13 @@ REVOKE ALL
 ON DATABASE :"database_name"
 FROM PUBLIC;
 
+GRANT CONNECT, CREATE
+ON DATABASE :"database_name"
+TO pid_migrator;
+
 GRANT CONNECT
 ON DATABASE :"database_name"
-TO pid_migrator, pid_app, pid_worker;
+TO pid_app, pid_worker;
 
 REVOKE CREATE
 ON SCHEMA public

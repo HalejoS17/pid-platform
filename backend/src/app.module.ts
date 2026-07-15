@@ -1,9 +1,11 @@
-﻿import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { envValidationSchema } from './config/env.validation';
+import { PrismaModule } from './database/prisma/prisma.module';
 import { HealthModule } from './modules/health/health.module';
+import { RestaurantsModule } from './modules/restaurants/restaurants.module';
 
 @Module({
   imports: [
@@ -29,8 +31,11 @@ import { HealthModule } from './modules/health/health.module';
       }),
     }),
 
+    PrismaModule,
     HealthModule,
+    RestaurantsModule,
   ],
+
   providers: [
     {
       provide: APP_GUARD,

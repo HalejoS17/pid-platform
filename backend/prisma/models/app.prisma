@@ -1,0 +1,96 @@
+enum OrganizationStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+
+  @@schema("app")
+}
+
+enum EntityStatus {
+  ACTIVE
+  INACTIVE
+
+  @@schema("app")
+}
+
+model Organization {
+  id           String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String             @db.VarChar(150)
+  slug         String             @unique(map: "organizations_slug_key") @db.VarChar(100)
+  status       OrganizationStatus @default(ACTIVE)
+  timezone     String             @default("America/Guayaquil") @db.VarChar(60)
+  currencyCode String             @default("USD") @map("currency_code") @db.Char(3)
+  createdAt    DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt    DateTime?          @map("deleted_at") @db.Timestamptz(6)
+
+  restaurants Restaurant[]
+
+  @@index([status], map: "organizations_status_idx")
+  @@map("organizations")
+  @@schema("app")
+}
+
+model Restaurant {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  code           String       @db.VarChar(30)
+  name           String       @db.VarChar(150)
+  status         EntityStatus @default(ACTIVE)
+  timezone       String       @default("America/Guayaquil") @db.VarChar(60)
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime?    @map("deleted_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  branches     Branch[]
+
+  @@unique([organizationId, id], map: "restaurants_organization_id_id_key")
+  @@unique([organizationId, code], map: "restaurants_organization_code_key")
+  @@index([organizationId, status], map: "restaurants_organization_status_idx")
+  @@map("restaurants")
+  @@schema("app")
+}
+
+model Branch {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  restaurantId   String       @map("restaurant_id") @db.Uuid
+  code           String       @db.VarChar(30)
+  name           String       @db.VarChar(150)
+  city           String?      @db.VarChar(100)
+  address        String?      @db.VarChar(250)
+  timezone       String       @default("America/Guayaquil") @db.VarChar(60)
+  status         EntityStatus @default(ACTIVE)
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime?    @map("deleted_at") @db.Timestamptz(6)
+
+  restaurant Restaurant  @relation(fields: [organizationId, restaurantId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+  warehouses Warehouse[]
+
+  @@unique([organizationId, id], map: "branches_organization_id_id_key")
+  @@unique([restaurantId, code], map: "branches_restaurant_code_key")
+  @@index([organizationId, restaurantId, status], map: "branches_organization_restaurant_status_idx")
+  @@map("branches")
+  @@schema("app")
+}
+
+model Warehouse {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  branchId       String       @map("branch_id") @db.Uuid
+  code           String       @db.VarChar(30)
+  name           String       @db.VarChar(150)
+  status         EntityStatus @default(ACTIVE)
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime?    @map("deleted_at") @db.Timestamptz(6)
+
+  branch Branch @relation(fields: [organizationId, branchId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([branchId, code], map: "warehouses_branch_code_key")
+  @@index([organizationId, branchId, status], map: "warehouses_organization_branch_status_idx")
+  @@map("warehouses")
+  @@schema("app")
+}

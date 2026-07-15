@@ -1,15 +1,14 @@
-﻿import { Controller, Get } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
+import { HealthService, type HealthResponse } from './health.service';
 
 @SkipThrottle()
 @Controller('health')
 export class HealthController {
+  constructor(private readonly healthService: HealthService) {}
+
   @Get()
-  check() {
-    return {
-      status: 'ok',
-      service: 'pid-core-api',
-      timestamp: new Date().toISOString(),
-    };
+  check(): Promise<HealthResponse> {
+    return this.healthService.check();
   }
 }
