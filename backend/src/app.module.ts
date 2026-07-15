@@ -4,6 +4,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { envValidationSchema } from './config/env.validation';
 import { PrismaModule } from './database/prisma/prisma.module';
+import { BranchesModule } from './modules/branches/branches.module';
 import { HealthModule } from './modules/health/health.module';
 import { RestaurantsModule } from './modules/restaurants/restaurants.module';
 
@@ -34,6 +35,7 @@ import { RestaurantsModule } from './modules/restaurants/restaurants.module';
     PrismaModule,
     HealthModule,
     RestaurantsModule,
+    BranchesModule,
   ],
 
   providers: [
