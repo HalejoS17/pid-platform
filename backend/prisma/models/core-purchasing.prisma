@@ -1,0 +1,87 @@
+model Supplier {
+  id               String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId   String       @map("organization_id") @db.Uuid
+  code             String       @db.VarChar(30)
+  legalName        String       @map("legal_name") @db.VarChar(180)
+  tradeName        String?      @map("trade_name") @db.VarChar(180)
+  taxId            String?      @map("tax_id") @db.VarChar(30)
+  email            String?      @db.VarChar(150)
+  phone            String?      @db.VarChar(40)
+  city             String?      @db.VarChar(100)
+  address          String?      @db.VarChar(250)
+  paymentTermsDays Int          @default(0) @map("payment_terms_days") @db.SmallInt
+  status           EntityStatus @default(ACTIVE)
+  createdAt        DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt        DateTime?    @map("deleted_at") @db.Timestamptz(6)
+
+  organization     Organization      @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  supplierProducts SupplierProduct[]
+
+  purchaseOrders PurchaseOrder[]
+
+  @@unique([organizationId, id], map: "suppliers_org_id_id_key")
+  @@unique([organizationId, code], map: "suppliers_org_code_key")
+  @@unique([organizationId, taxId], map: "suppliers_org_tax_id_key")
+  @@index([organizationId, status], map: "suppliers_org_status_idx")
+  @@index([organizationId, legalName], map: "suppliers_org_legal_name_idx")
+  @@map("suppliers")
+  @@schema("core")
+}
+
+model SupplierProduct {
+  id                   String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId       String       @map("organization_id") @db.Uuid
+  supplierId           String       @map("supplier_id") @db.Uuid
+  productId            String       @map("product_id") @db.Uuid
+  purchaseUnitId       String       @map("purchase_unit_id") @db.Uuid
+  supplierSku          String?      @map("supplier_sku") @db.VarChar(80)
+  minimumOrderQuantity Decimal      @default(1) @map("minimum_order_quantity") @db.Decimal(18, 6)
+  leadTimeDays         Int          @default(0) @map("lead_time_days") @db.SmallInt
+  isPreferred          Boolean      @default(false) @map("is_preferred")
+  status               EntityStatus @default(ACTIVE)
+  createdAt            DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt            DateTime?    @map("deleted_at") @db.Timestamptz(6)
+
+  supplier     Supplier              @relation(fields: [organizationId, supplierId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+  product      Product               @relation(fields: [organizationId, productId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+  purchaseUnit UnitOfMeasure         @relation("SupplierProductPurchaseUnit", fields: [organizationId, purchaseUnitId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+  costs        SupplierProductCost[]
+
+  purchaseOrderItems PurchaseOrderItem[]
+
+  @@unique([organizationId, id], map: "supplier_products_org_id_id_key")
+  @@unique([organizationId, supplierId, productId, purchaseUnitId], map: "supplier_products_org_supplier_product_unit_key")
+  @@index([organizationId, supplierId, status], map: "supplier_products_org_supplier_status_idx")
+  @@index([organizationId, productId, status], map: "supplier_products_org_product_status_idx")
+  @@index([organizationId, purchaseUnitId], map: "supplier_products_org_purchase_unit_idx")
+  @@index([organizationId, supplierId, supplierSku], map: "supplier_products_org_supplier_sku_idx")
+  @@map("supplier_products")
+  @@schema("core")
+}
+
+model SupplierProductCost {
+  id                String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId    String       @map("organization_id") @db.Uuid
+  supplierProductId String       @map("supplier_product_id") @db.Uuid
+  unitCost          Decimal      @map("unit_cost") @db.Decimal(18, 6)
+  currencyCode      String       @default("USD") @map("currency_code") @db.Char(3)
+  taxIncluded       Boolean      @default(false) @map("tax_included")
+  effectiveFrom     DateTime     @default(now()) @map("effective_from") @db.Timestamptz(6)
+  effectiveTo       DateTime?    @map("effective_to") @db.Timestamptz(6)
+  notes             String?      @db.VarChar(250)
+  status            EntityStatus @default(ACTIVE)
+  createdAt         DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt         DateTime?    @map("deleted_at") @db.Timestamptz(6)
+
+  supplierProduct SupplierProduct @relation(fields: [organizationId, supplierProductId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([organizationId, id], map: "supplier_product_costs_org_id_id_key")
+  @@unique([organizationId, supplierProductId, effectiveFrom], map: "supplier_product_costs_org_product_effective_key")
+  @@index([organizationId, supplierProductId, status, effectiveFrom], map: "supplier_product_costs_org_product_status_date_idx")
+  @@index([organizationId, effectiveFrom], map: "supplier_product_costs_org_effective_from_idx")
+  @@map("supplier_product_costs")
+  @@schema("core")
+}

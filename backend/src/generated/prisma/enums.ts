@@ -24,3 +24,80 @@ export const EntityStatus = {
 } as const
 
 export type EntityStatus = (typeof EntityStatus)[keyof typeof EntityStatus]
+
+
+export const UnitDimension = {
+  COUNT: 'COUNT',
+  MASS: 'MASS',
+  VOLUME: 'VOLUME',
+  LENGTH: 'LENGTH',
+  OTHER: 'OTHER'
+} as const
+
+export type UnitDimension = (typeof UnitDimension)[keyof typeof UnitDimension]
+
+
+export const ProductType = {
+  INGREDIENT: 'INGREDIENT',
+  PREPARED_ITEM: 'PREPARED_ITEM',
+  MENU_ITEM: 'MENU_ITEM',
+  BEVERAGE: 'BEVERAGE',
+  PACKAGING: 'PACKAGING',
+  SUPPLY: 'SUPPLY',
+  OTHER: 'OTHER'
+} as const
+
+export type ProductType = (typeof ProductType)[keyof typeof ProductType]
+
+
+export const InventoryMovementType = {
+  OPENING_BALANCE: 'OPENING_BALANCE',
+  PURCHASE_RECEIPT: 'PURCHASE_RECEIPT',
+  PURCHASE_RETURN: 'PURCHASE_RETURN',
+  TRANSFER: 'TRANSFER',
+  ADJUSTMENT: 'ADJUSTMENT',
+  PRODUCTION_CONSUMPTION: 'PRODUCTION_CONSUMPTION',
+  PRODUCTION_OUTPUT: 'PRODUCTION_OUTPUT',
+  SALE_CONSUMPTION: 'SALE_CONSUMPTION',
+  WASTE: 'WASTE',
+  INVENTORY_COUNT: 'INVENTORY_COUNT'
+} as const
+
+export type InventoryMovementType = (typeof InventoryMovementType)[keyof typeof InventoryMovementType]
+
+
+export const InventoryMovementDirection = {
+  IN: 'IN',
+  OUT: 'OUT'
+} as const
+
+export type InventoryMovementDirection = (typeof InventoryMovementDirection)[keyof typeof InventoryMovementDirection]
+
+
+export const InventoryMovementStatus = {
+  DRAFT: 'DRAFT',
+  POSTED: 'POSTED',
+  VOIDED: 'VOIDED'
+} as const
+
+export type InventoryMovementStatus = (typeof InventoryMovementStatus)[keyof typeof InventoryMovementStatus]
+
+
+export const PurchaseOrderStatus = {
+  DRAFT: 'DRAFT',
+  APPROVED: 'APPROVED',
+  PARTIALLY_RECEIVED: 'PARTIALLY_RECEIVED',
+  RECEIVED: 'RECEIVED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type PurchaseOrderStatus = (typeof PurchaseOrderStatus)[keyof typeof PurchaseOrderStatus]
+
+
+export const GoodsReceiptStatus = {
+  DRAFT: 'DRAFT',
+  POSTED: 'POSTED',
+  VOIDED: 'VOIDED'
+} as const
+
+export type GoodsReceiptStatus = (typeof GoodsReceiptStatus)[keyof typeof GoodsReceiptStatus]

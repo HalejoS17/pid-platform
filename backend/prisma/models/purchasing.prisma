@@ -1,0 +1,151 @@
+enum PurchaseOrderStatus {
+  DRAFT
+  APPROVED
+  PARTIALLY_RECEIVED
+  RECEIVED
+  CANCELLED
+
+  @@schema("purchasing")
+}
+
+enum GoodsReceiptStatus {
+  DRAFT
+  POSTED
+  VOIDED
+
+  @@schema("purchasing")
+}
+
+model PurchaseOrder {
+  id             String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String              @map("organization_id") @db.Uuid
+  supplierId     String              @map("supplier_id") @db.Uuid
+  warehouseId    String              @map("warehouse_id") @db.Uuid
+  number         String              @db.VarChar(40)
+  orderDate      DateTime            @default(now()) @map("order_date") @db.Timestamptz(6)
+  expectedDate   DateTime?           @map("expected_date") @db.Timestamptz(6)
+  currencyCode   String              @default("USD") @map("currency_code") @db.Char(3)
+  status         PurchaseOrderStatus @default(DRAFT)
+  subtotal       Decimal             @default(0) @db.Decimal(18, 6)
+  taxAmount      Decimal             @default(0) @map("tax_amount") @db.Decimal(18, 6)
+  totalAmount    Decimal             @default(0) @map("total_amount") @db.Decimal(18, 6)
+  notes          String?             @db.VarChar(500)
+  approvedAt     DateTime?           @map("approved_at") @db.Timestamptz(6)
+  cancelledAt    DateTime?           @map("cancelled_at") @db.Timestamptz(6)
+  closedAt       DateTime?           @map("closed_at") @db.Timestamptz(6)
+  createdAt      DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  organization Organization        @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  supplier     Supplier            @relation(fields: [organizationId, supplierId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+  warehouse    Warehouse           @relation(fields: [organizationId, warehouseId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+  items        PurchaseOrderItem[]
+  receipts     GoodsReceipt[]
+
+  @@unique([organizationId, id], map: "purchase_orders_org_id_id_key")
+  @@unique([organizationId, number], map: "purchase_orders_org_number_key")
+  @@index([organizationId, supplierId, status], map: "purchase_orders_org_supplier_status_idx")
+  @@index([organizationId, warehouseId, status], map: "purchase_orders_org_warehouse_status_idx")
+  @@index([organizationId, orderDate], map: "purchase_orders_org_order_date_idx")
+  @@index([organizationId, expectedDate], map: "purchase_orders_org_expected_date_idx")
+  @@map("purchase_orders")
+  @@schema("purchasing")
+}
+
+model PurchaseOrderItem {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId    String    @map("organization_id") @db.Uuid
+  purchaseOrderId   String    @map("purchase_order_id") @db.Uuid
+  supplierProductId String    @map("supplier_product_id") @db.Uuid
+  productId         String    @map("product_id") @db.Uuid
+  unitId            String    @map("unit_id") @db.Uuid
+  lineNumber        Int       @map("line_number") @db.SmallInt
+  quantity          Decimal   @db.Decimal(18, 6)
+  receivedQuantity  Decimal   @default(0) @map("received_quantity") @db.Decimal(18, 6)
+  unitCost          Decimal   @map("unit_cost") @db.Decimal(18, 6)
+  taxRate           Decimal   @default(0) @map("tax_rate") @db.Decimal(7, 4)
+  lineSubtotal      Decimal   @map("line_subtotal") @db.Decimal(18, 6)
+  lineTax           Decimal   @default(0) @map("line_tax") @db.Decimal(18, 6)
+  lineTotal         Decimal   @map("line_total") @db.Decimal(18, 6)
+  notes             String?   @db.VarChar(250)
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt         DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  purchaseOrder   PurchaseOrder      @relation(fields: [organizationId, purchaseOrderId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+  supplierProduct SupplierProduct    @relation(fields: [organizationId, supplierProductId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+  product         Product            @relation(fields: [organizationId, productId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+  unit            UnitOfMeasure      @relation(fields: [organizationId, unitId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+  receiptItems    GoodsReceiptItem[]
+
+  @@unique([organizationId, id], map: "purchase_order_items_org_id_id_key")
+  @@unique([organizationId, purchaseOrderId, lineNumber], map: "purchase_order_items_org_order_line_key")
+  @@index([organizationId, purchaseOrderId], map: "purchase_order_items_org_order_idx")
+  @@index([organizationId, supplierProductId], map: "purchase_order_items_org_supplier_product_idx")
+  @@index([organizationId, productId], map: "purchase_order_items_org_product_idx")
+  @@index([organizationId, purchaseOrderId, deletedAt], map: "purchase_order_items_org_order_deleted_idx")
+  @@map("purchase_order_items")
+  @@schema("purchasing")
+}
+
+model GoodsReceipt {
+  id                     String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId         String             @map("organization_id") @db.Uuid
+  purchaseOrderId        String             @map("purchase_order_id") @db.Uuid
+  warehouseId            String             @map("warehouse_id") @db.Uuid
+  number                 String             @db.VarChar(40)
+  supplierDocumentNumber String?            @map("supplier_document_number") @db.VarChar(80)
+  receiptDate            DateTime           @default(now()) @map("receipt_date") @db.Timestamptz(6)
+  status                 GoodsReceiptStatus @default(DRAFT)
+  idempotencyKey         String?            @map("idempotency_key") @db.VarChar(120)
+  notes                  String?            @db.VarChar(500)
+  postedAt               DateTime?          @map("posted_at") @db.Timestamptz(6)
+  voidedAt               DateTime?          @map("voided_at") @db.Timestamptz(6)
+  createdAt              DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt              DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  organization  Organization       @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  purchaseOrder PurchaseOrder      @relation(fields: [organizationId, purchaseOrderId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+  warehouse     Warehouse          @relation(fields: [organizationId, warehouseId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+  items         GoodsReceiptItem[]
+
+  @@unique([organizationId, id], map: "goods_receipts_org_id_id_key")
+  @@unique([organizationId, number], map: "goods_receipts_org_number_key")
+  @@index([organizationId, purchaseOrderId, status], map: "goods_receipts_org_order_status_idx")
+  @@index([organizationId, warehouseId, receiptDate], map: "goods_receipts_org_warehouse_date_idx")
+  @@index([organizationId, supplierDocumentNumber], map: "goods_receipts_org_supplier_document_idx")
+  @@map("goods_receipts")
+  @@schema("purchasing")
+}
+
+model GoodsReceiptItem {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId      String   @map("organization_id") @db.Uuid
+  goodsReceiptId      String   @map("goods_receipt_id") @db.Uuid
+  purchaseOrderItemId String   @map("purchase_order_item_id") @db.Uuid
+  productId           String   @map("product_id") @db.Uuid
+  unitId              String   @map("unit_id") @db.Uuid
+  lineNumber          Int      @map("line_number") @db.SmallInt
+  quantity            Decimal  @db.Decimal(18, 6)
+  factorToBase        Decimal  @map("factor_to_base") @db.Decimal(18, 6)
+  baseQuantity        Decimal  @map("base_quantity") @db.Decimal(18, 6)
+  unitCost            Decimal  @map("unit_cost") @db.Decimal(18, 6)
+  baseUnitCost        Decimal  @map("base_unit_cost") @db.Decimal(18, 6)
+  totalCost           Decimal  @map("total_cost") @db.Decimal(18, 6)
+  notes               String?  @db.VarChar(250)
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  goodsReceipt      GoodsReceipt      @relation(fields: [organizationId, goodsReceiptId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+  purchaseOrderItem PurchaseOrderItem @relation(fields: [organizationId, purchaseOrderItemId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+  product           Product           @relation(fields: [organizationId, productId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+  unit              UnitOfMeasure     @relation(fields: [organizationId, unitId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([organizationId, id], map: "goods_receipt_items_org_id_id_key")
+  @@unique([organizationId, goodsReceiptId, lineNumber], map: "goods_receipt_items_org_receipt_line_key")
+  @@unique([organizationId, goodsReceiptId, purchaseOrderItemId], map: "goods_receipt_items_org_receipt_order_item_key")
+  @@index([organizationId, purchaseOrderItemId], map: "goods_receipt_items_org_order_item_idx")
+  @@index([organizationId, productId], map: "goods_receipt_items_org_product_idx")
+  @@map("goods_receipt_items")
+  @@schema("purchasing")
+}

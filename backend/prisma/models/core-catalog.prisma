@@ -1,0 +1,131 @@
+enum UnitDimension {
+  COUNT
+  MASS
+  VOLUME
+  LENGTH
+  OTHER
+
+  @@schema("core")
+}
+
+enum ProductType {
+  INGREDIENT
+  PREPARED_ITEM
+  MENU_ITEM
+  BEVERAGE
+  PACKAGING
+  SUPPLY
+  OTHER
+
+  @@schema("core")
+}
+
+model ProductCategory {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  code           String       @db.VarChar(30)
+  name           String       @db.VarChar(150)
+  description    String?      @db.VarChar(250)
+  status         EntityStatus @default(ACTIVE)
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime?    @map("deleted_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  products     Product[]
+
+  @@unique([organizationId, id], map: "product_categories_org_id_id_key")
+  @@unique([organizationId, code], map: "product_categories_org_code_key")
+  @@index([organizationId, status], map: "product_categories_org_status_idx")
+  @@map("product_categories")
+  @@schema("core")
+}
+
+model UnitOfMeasure {
+  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String        @map("organization_id") @db.Uuid
+  code           String        @db.VarChar(30)
+  name           String        @db.VarChar(100)
+  symbol         String        @db.VarChar(20)
+  dimension      UnitDimension
+  decimalPlaces  Int           @default(3) @map("decimal_places") @db.SmallInt
+  status         EntityStatus  @default(ACTIVE)
+  createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime?     @map("deleted_at") @db.Timestamptz(6)
+
+  organization       Organization            @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  baseUnitProducts   Product[]               @relation("ProductBaseUnit")
+  productConversions ProductUnitConversion[]
+  supplierProducts   SupplierProduct[]       @relation("SupplierProductPurchaseUnit")
+  inventoryMovements InventoryMovement[]
+
+  purchaseOrderItems PurchaseOrderItem[]
+  goodsReceiptItems  GoodsReceiptItem[]
+
+  @@unique([organizationId, id], map: "units_org_id_id_key")
+  @@unique([organizationId, code], map: "units_org_code_key")
+  @@index([organizationId, dimension, status], map: "units_org_dimension_status_idx")
+  @@map("units_of_measure")
+  @@schema("core")
+}
+
+model Product {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  categoryId     String       @map("category_id") @db.Uuid
+  baseUnitId     String       @map("base_unit_id") @db.Uuid
+  code           String       @db.VarChar(50)
+  name           String       @db.VarChar(150)
+  description    String?      @db.VarChar(250)
+  sku            String?      @db.VarChar(60)
+  barcode        String?      @db.VarChar(80)
+  type           ProductType  @default(INGREDIENT)
+  trackInventory Boolean      @default(true) @map("track_inventory")
+  status         EntityStatus @default(ACTIVE)
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime?    @map("deleted_at") @db.Timestamptz(6)
+
+  category           ProductCategory         @relation(fields: [organizationId, categoryId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+  baseUnit           UnitOfMeasure           @relation("ProductBaseUnit", fields: [organizationId, baseUnitId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+  unitConversions    ProductUnitConversion[]
+  supplierProducts   SupplierProduct[]
+  inventoryBalances  InventoryBalance[]
+  inventoryMovements InventoryMovement[]
+
+  purchaseOrderItems PurchaseOrderItem[]
+  goodsReceiptItems  GoodsReceiptItem[]
+
+  @@unique([organizationId, id], map: "products_org_id_id_key")
+  @@unique([organizationId, code], map: "products_org_code_key")
+  @@index([organizationId, categoryId, status], map: "products_org_category_status_idx")
+  @@index([organizationId, baseUnitId], map: "products_org_base_unit_idx")
+  @@index([organizationId, sku], map: "products_org_sku_idx")
+  @@index([organizationId, barcode], map: "products_org_barcode_idx")
+  @@map("products")
+  @@schema("core")
+}
+
+model ProductUnitConversion {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  productId      String       @map("product_id") @db.Uuid
+  unitId         String       @map("unit_id") @db.Uuid
+  factorToBase   Decimal      @map("factor_to_base") @db.Decimal(18, 6)
+  isPurchaseUnit Boolean      @default(false) @map("is_purchase_unit")
+  isRecipeUnit   Boolean      @default(false) @map("is_recipe_unit")
+  status         EntityStatus @default(ACTIVE)
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime?    @map("deleted_at") @db.Timestamptz(6)
+
+  product Product       @relation(fields: [organizationId, productId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+  unit    UnitOfMeasure @relation(fields: [organizationId, unitId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([organizationId, productId, unitId], map: "product_units_org_product_unit_key")
+  @@index([organizationId, productId, status], map: "product_units_org_product_status_idx")
+  @@index([organizationId, unitId], map: "product_units_org_unit_idx")
+  @@map("product_unit_conversions")
+  @@schema("core")
+}

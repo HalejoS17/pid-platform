@@ -1,0 +1,96 @@
+enum InventoryMovementType {
+  OPENING_BALANCE
+  PURCHASE_RECEIPT
+  PURCHASE_RETURN
+  TRANSFER
+  ADJUSTMENT
+  PRODUCTION_CONSUMPTION
+  PRODUCTION_OUTPUT
+  SALE_CONSUMPTION
+  WASTE
+  INVENTORY_COUNT
+
+  @@schema("inventory")
+}
+
+enum InventoryMovementDirection {
+  IN
+  OUT
+
+  @@schema("inventory")
+}
+
+enum InventoryMovementStatus {
+  DRAFT
+  POSTED
+  VOIDED
+
+  @@schema("inventory")
+}
+
+model InventoryBalance {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId   String    @map("organization_id") @db.Uuid
+  warehouseId      String    @map("warehouse_id") @db.Uuid
+  productId        String    @map("product_id") @db.Uuid
+  quantityOnHand   Decimal   @default(0) @map("quantity_on_hand") @db.Decimal(18, 6)
+  quantityReserved Decimal   @default(0) @map("quantity_reserved") @db.Decimal(18, 6)
+  averageUnitCost  Decimal   @default(0) @map("average_unit_cost") @db.Decimal(18, 6)
+  version          Int       @default(0)
+  lastMovementAt   DateTime? @map("last_movement_at") @db.Timestamptz(6)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  warehouse    Warehouse    @relation(fields: [organizationId, warehouseId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+  product      Product      @relation(fields: [organizationId, productId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([organizationId, id], map: "inventory_balances_org_id_id_key")
+  @@unique([organizationId, warehouseId, productId], map: "inventory_balances_org_warehouse_product_key")
+  @@index([organizationId, warehouseId], map: "inventory_balances_org_warehouse_idx")
+  @@index([organizationId, productId], map: "inventory_balances_org_product_idx")
+  @@map("inventory_balances")
+  @@schema("inventory")
+}
+
+model InventoryMovement {
+  id                   String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId       String                     @map("organization_id") @db.Uuid
+  warehouseId          String                     @map("warehouse_id") @db.Uuid
+  productId            String                     @map("product_id") @db.Uuid
+  unitId               String                     @map("unit_id") @db.Uuid
+  type                 InventoryMovementType
+  direction            InventoryMovementDirection
+  status               InventoryMovementStatus    @default(DRAFT)
+  quantity             Decimal                    @db.Decimal(18, 6)
+  factorToBase         Decimal                    @map("factor_to_base") @db.Decimal(18, 6)
+  baseQuantity         Decimal                    @map("base_quantity") @db.Decimal(18, 6)
+  unitCost             Decimal                    @default(0) @map("unit_cost") @db.Decimal(18, 6)
+  totalCost            Decimal                    @default(0) @map("total_cost") @db.Decimal(18, 6)
+  balanceQuantityAfter Decimal?                   @map("balance_quantity_after") @db.Decimal(18, 6)
+  averageUnitCostAfter Decimal?                   @map("average_unit_cost_after") @db.Decimal(18, 6)
+  occurredAt           DateTime                   @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  postedAt             DateTime?                  @map("posted_at") @db.Timestamptz(6)
+  referenceType        String?                    @map("reference_type") @db.VarChar(40)
+  referenceId          String?                    @map("reference_id") @db.VarChar(80)
+  referenceNumber      String?                    @map("reference_number") @db.VarChar(80)
+  transferGroupId      String?                    @map("transfer_group_id") @db.Uuid
+  idempotencyKey       String?                    @map("idempotency_key") @db.VarChar(120)
+  notes                String?                    @db.VarChar(500)
+  createdAt            DateTime                   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime                   @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  warehouse    Warehouse     @relation(fields: [organizationId, warehouseId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+  product      Product       @relation(fields: [organizationId, productId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+  unit         UnitOfMeasure @relation(fields: [organizationId, unitId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([organizationId, id], map: "inventory_movements_org_id_id_key")
+  @@index([organizationId, warehouseId, productId, occurredAt, id], map: "inventory_movements_kardex_idx")
+  @@index([organizationId, productId, occurredAt], map: "inventory_movements_org_product_date_idx")
+  @@index([organizationId, referenceType, referenceId], map: "inventory_movements_reference_idx")
+  @@index([organizationId, transferGroupId], map: "inventory_movements_transfer_group_idx")
+  @@index([organizationId, status, occurredAt], map: "inventory_movements_status_date_idx")
+  @@map("inventory_movements")
+  @@schema("inventory")
+}

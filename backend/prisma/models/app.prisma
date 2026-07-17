@@ -24,7 +24,15 @@ model Organization {
   updatedAt    DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
   deletedAt    DateTime?          @map("deleted_at") @db.Timestamptz(6)
 
-  restaurants Restaurant[]
+  restaurants        Restaurant[]
+  productCategories  ProductCategory[]
+  unitsOfMeasure     UnitOfMeasure[]
+  suppliers          Supplier[]
+  inventoryBalances  InventoryBalance[]
+  inventoryMovements InventoryMovement[]
+
+  purchaseOrders PurchaseOrder[]
+  goodsReceipts  GoodsReceipt[]
 
   @@index([status], map: "organizations_status_idx")
   @@map("organizations")
@@ -87,8 +95,14 @@ model Warehouse {
   updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
   deletedAt      DateTime?    @map("deleted_at") @db.Timestamptz(6)
 
-  branch Branch @relation(fields: [organizationId, branchId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+  branch             Branch              @relation(fields: [organizationId, branchId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+  inventoryBalances  InventoryBalance[]
+  inventoryMovements InventoryMovement[]
 
+  purchaseOrders PurchaseOrder[]
+  goodsReceipts  GoodsReceipt[]
+
+  @@unique([organizationId, id], map: "warehouses_organization_id_id_key")
   @@unique([branchId, code], map: "warehouses_branch_code_key")
   @@index([organizationId, branchId, status], map: "warehouses_organization_branch_status_idx")
   @@map("warehouses")

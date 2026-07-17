@@ -215,6 +215,10 @@ export type WarehouseWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Warehouse"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"Warehouse"> | Date | string | null
   branch?: Prisma.XOR<Prisma.BranchScalarRelationFilter, Prisma.BranchWhereInput>
+  inventoryBalances?: Prisma.InventoryBalanceListRelationFilter
+  inventoryMovements?: Prisma.InventoryMovementListRelationFilter
+  purchaseOrders?: Prisma.PurchaseOrderListRelationFilter
+  goodsReceipts?: Prisma.GoodsReceiptListRelationFilter
 }
 
 export type WarehouseOrderByWithRelationInput = {
@@ -228,10 +232,15 @@ export type WarehouseOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   branch?: Prisma.BranchOrderByWithRelationInput
+  inventoryBalances?: Prisma.InventoryBalanceOrderByRelationAggregateInput
+  inventoryMovements?: Prisma.InventoryMovementOrderByRelationAggregateInput
+  purchaseOrders?: Prisma.PurchaseOrderOrderByRelationAggregateInput
+  goodsReceipts?: Prisma.GoodsReceiptOrderByRelationAggregateInput
 }
 
 export type WarehouseWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  organizationId_id?: Prisma.WarehouseOrganizationIdIdCompoundUniqueInput
   branchId_code?: Prisma.WarehouseBranchIdCodeCompoundUniqueInput
   AND?: Prisma.WarehouseWhereInput | Prisma.WarehouseWhereInput[]
   OR?: Prisma.WarehouseWhereInput[]
@@ -245,7 +254,11 @@ export type WarehouseWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Warehouse"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"Warehouse"> | Date | string | null
   branch?: Prisma.XOR<Prisma.BranchScalarRelationFilter, Prisma.BranchWhereInput>
-}, "id" | "branchId_code">
+  inventoryBalances?: Prisma.InventoryBalanceListRelationFilter
+  inventoryMovements?: Prisma.InventoryMovementListRelationFilter
+  purchaseOrders?: Prisma.PurchaseOrderListRelationFilter
+  goodsReceipts?: Prisma.GoodsReceiptListRelationFilter
+}, "id" | "organizationId_id" | "branchId_code">
 
 export type WarehouseOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -286,6 +299,10 @@ export type WarehouseCreateInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   branch: Prisma.BranchCreateNestedOneWithoutWarehousesInput
+  inventoryBalances?: Prisma.InventoryBalanceCreateNestedManyWithoutWarehouseInput
+  inventoryMovements?: Prisma.InventoryMovementCreateNestedManyWithoutWarehouseInput
+  purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutWarehouseInput
+  goodsReceipts?: Prisma.GoodsReceiptCreateNestedManyWithoutWarehouseInput
 }
 
 export type WarehouseUncheckedCreateInput = {
@@ -298,6 +315,10 @@ export type WarehouseUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutWarehouseInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutWarehouseInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutWarehouseInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedCreateNestedManyWithoutWarehouseInput
 }
 
 export type WarehouseUpdateInput = {
@@ -309,6 +330,10 @@ export type WarehouseUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   branch?: Prisma.BranchUpdateOneRequiredWithoutWarehousesNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUpdateManyWithoutWarehouseNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUpdateManyWithoutWarehouseNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutWarehouseNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUpdateManyWithoutWarehouseNestedInput
 }
 
 export type WarehouseUncheckedUpdateInput = {
@@ -321,6 +346,10 @@ export type WarehouseUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutWarehouseNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutWarehouseNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutWarehouseNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedUpdateManyWithoutWarehouseNestedInput
 }
 
 export type WarehouseCreateManyInput = {
@@ -367,6 +396,11 @@ export type WarehouseOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type WarehouseOrganizationIdIdCompoundUniqueInput = {
+  organizationId: string
+  id: string
+}
+
 export type WarehouseBranchIdCodeCompoundUniqueInput = {
   branchId: string
   code: string
@@ -406,6 +440,11 @@ export type WarehouseMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
+}
+
+export type WarehouseScalarRelationFilter = {
+  is?: Prisma.WarehouseWhereInput
+  isNot?: Prisma.WarehouseWhereInput
 }
 
 export type WarehouseCreateNestedManyWithoutBranchInput = {
@@ -450,6 +489,62 @@ export type WarehouseUncheckedUpdateManyWithoutBranchNestedInput = {
   deleteMany?: Prisma.WarehouseScalarWhereInput | Prisma.WarehouseScalarWhereInput[]
 }
 
+export type WarehouseCreateNestedOneWithoutInventoryBalancesInput = {
+  create?: Prisma.XOR<Prisma.WarehouseCreateWithoutInventoryBalancesInput, Prisma.WarehouseUncheckedCreateWithoutInventoryBalancesInput>
+  connectOrCreate?: Prisma.WarehouseCreateOrConnectWithoutInventoryBalancesInput
+  connect?: Prisma.WarehouseWhereUniqueInput
+}
+
+export type WarehouseUpdateOneRequiredWithoutInventoryBalancesNestedInput = {
+  create?: Prisma.XOR<Prisma.WarehouseCreateWithoutInventoryBalancesInput, Prisma.WarehouseUncheckedCreateWithoutInventoryBalancesInput>
+  connectOrCreate?: Prisma.WarehouseCreateOrConnectWithoutInventoryBalancesInput
+  upsert?: Prisma.WarehouseUpsertWithoutInventoryBalancesInput
+  connect?: Prisma.WarehouseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WarehouseUpdateToOneWithWhereWithoutInventoryBalancesInput, Prisma.WarehouseUpdateWithoutInventoryBalancesInput>, Prisma.WarehouseUncheckedUpdateWithoutInventoryBalancesInput>
+}
+
+export type WarehouseCreateNestedOneWithoutInventoryMovementsInput = {
+  create?: Prisma.XOR<Prisma.WarehouseCreateWithoutInventoryMovementsInput, Prisma.WarehouseUncheckedCreateWithoutInventoryMovementsInput>
+  connectOrCreate?: Prisma.WarehouseCreateOrConnectWithoutInventoryMovementsInput
+  connect?: Prisma.WarehouseWhereUniqueInput
+}
+
+export type WarehouseUpdateOneRequiredWithoutInventoryMovementsNestedInput = {
+  create?: Prisma.XOR<Prisma.WarehouseCreateWithoutInventoryMovementsInput, Prisma.WarehouseUncheckedCreateWithoutInventoryMovementsInput>
+  connectOrCreate?: Prisma.WarehouseCreateOrConnectWithoutInventoryMovementsInput
+  upsert?: Prisma.WarehouseUpsertWithoutInventoryMovementsInput
+  connect?: Prisma.WarehouseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WarehouseUpdateToOneWithWhereWithoutInventoryMovementsInput, Prisma.WarehouseUpdateWithoutInventoryMovementsInput>, Prisma.WarehouseUncheckedUpdateWithoutInventoryMovementsInput>
+}
+
+export type WarehouseCreateNestedOneWithoutPurchaseOrdersInput = {
+  create?: Prisma.XOR<Prisma.WarehouseCreateWithoutPurchaseOrdersInput, Prisma.WarehouseUncheckedCreateWithoutPurchaseOrdersInput>
+  connectOrCreate?: Prisma.WarehouseCreateOrConnectWithoutPurchaseOrdersInput
+  connect?: Prisma.WarehouseWhereUniqueInput
+}
+
+export type WarehouseUpdateOneRequiredWithoutPurchaseOrdersNestedInput = {
+  create?: Prisma.XOR<Prisma.WarehouseCreateWithoutPurchaseOrdersInput, Prisma.WarehouseUncheckedCreateWithoutPurchaseOrdersInput>
+  connectOrCreate?: Prisma.WarehouseCreateOrConnectWithoutPurchaseOrdersInput
+  upsert?: Prisma.WarehouseUpsertWithoutPurchaseOrdersInput
+  connect?: Prisma.WarehouseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WarehouseUpdateToOneWithWhereWithoutPurchaseOrdersInput, Prisma.WarehouseUpdateWithoutPurchaseOrdersInput>, Prisma.WarehouseUncheckedUpdateWithoutPurchaseOrdersInput>
+}
+
+export type WarehouseCreateNestedOneWithoutGoodsReceiptsInput = {
+  create?: Prisma.XOR<Prisma.WarehouseCreateWithoutGoodsReceiptsInput, Prisma.WarehouseUncheckedCreateWithoutGoodsReceiptsInput>
+  connectOrCreate?: Prisma.WarehouseCreateOrConnectWithoutGoodsReceiptsInput
+  connect?: Prisma.WarehouseWhereUniqueInput
+}
+
+export type WarehouseUpdateOneRequiredWithoutGoodsReceiptsNestedInput = {
+  create?: Prisma.XOR<Prisma.WarehouseCreateWithoutGoodsReceiptsInput, Prisma.WarehouseUncheckedCreateWithoutGoodsReceiptsInput>
+  connectOrCreate?: Prisma.WarehouseCreateOrConnectWithoutGoodsReceiptsInput
+  upsert?: Prisma.WarehouseUpsertWithoutGoodsReceiptsInput
+  connect?: Prisma.WarehouseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WarehouseUpdateToOneWithWhereWithoutGoodsReceiptsInput, Prisma.WarehouseUpdateWithoutGoodsReceiptsInput>, Prisma.WarehouseUncheckedUpdateWithoutGoodsReceiptsInput>
+}
+
 export type WarehouseCreateWithoutBranchInput = {
   id?: string
   code: string
@@ -458,6 +553,10 @@ export type WarehouseCreateWithoutBranchInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  inventoryBalances?: Prisma.InventoryBalanceCreateNestedManyWithoutWarehouseInput
+  inventoryMovements?: Prisma.InventoryMovementCreateNestedManyWithoutWarehouseInput
+  purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutWarehouseInput
+  goodsReceipts?: Prisma.GoodsReceiptCreateNestedManyWithoutWarehouseInput
 }
 
 export type WarehouseUncheckedCreateWithoutBranchInput = {
@@ -468,6 +567,10 @@ export type WarehouseUncheckedCreateWithoutBranchInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutWarehouseInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutWarehouseInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutWarehouseInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedCreateNestedManyWithoutWarehouseInput
 }
 
 export type WarehouseCreateOrConnectWithoutBranchInput = {
@@ -511,6 +614,302 @@ export type WarehouseScalarWhereInput = {
   deletedAt?: Prisma.DateTimeNullableFilter<"Warehouse"> | Date | string | null
 }
 
+export type WarehouseCreateWithoutInventoryBalancesInput = {
+  id?: string
+  code: string
+  name: string
+  status?: $Enums.EntityStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  branch: Prisma.BranchCreateNestedOneWithoutWarehousesInput
+  inventoryMovements?: Prisma.InventoryMovementCreateNestedManyWithoutWarehouseInput
+  purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutWarehouseInput
+  goodsReceipts?: Prisma.GoodsReceiptCreateNestedManyWithoutWarehouseInput
+}
+
+export type WarehouseUncheckedCreateWithoutInventoryBalancesInput = {
+  id?: string
+  organizationId: string
+  branchId: string
+  code: string
+  name: string
+  status?: $Enums.EntityStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  inventoryMovements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutWarehouseInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutWarehouseInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedCreateNestedManyWithoutWarehouseInput
+}
+
+export type WarehouseCreateOrConnectWithoutInventoryBalancesInput = {
+  where: Prisma.WarehouseWhereUniqueInput
+  create: Prisma.XOR<Prisma.WarehouseCreateWithoutInventoryBalancesInput, Prisma.WarehouseUncheckedCreateWithoutInventoryBalancesInput>
+}
+
+export type WarehouseUpsertWithoutInventoryBalancesInput = {
+  update: Prisma.XOR<Prisma.WarehouseUpdateWithoutInventoryBalancesInput, Prisma.WarehouseUncheckedUpdateWithoutInventoryBalancesInput>
+  create: Prisma.XOR<Prisma.WarehouseCreateWithoutInventoryBalancesInput, Prisma.WarehouseUncheckedCreateWithoutInventoryBalancesInput>
+  where?: Prisma.WarehouseWhereInput
+}
+
+export type WarehouseUpdateToOneWithWhereWithoutInventoryBalancesInput = {
+  where?: Prisma.WarehouseWhereInput
+  data: Prisma.XOR<Prisma.WarehouseUpdateWithoutInventoryBalancesInput, Prisma.WarehouseUncheckedUpdateWithoutInventoryBalancesInput>
+}
+
+export type WarehouseUpdateWithoutInventoryBalancesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumEntityStatusFieldUpdateOperationsInput | $Enums.EntityStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  branch?: Prisma.BranchUpdateOneRequiredWithoutWarehousesNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUpdateManyWithoutWarehouseNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutWarehouseNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUpdateManyWithoutWarehouseNestedInput
+}
+
+export type WarehouseUncheckedUpdateWithoutInventoryBalancesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  branchId?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumEntityStatusFieldUpdateOperationsInput | $Enums.EntityStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inventoryMovements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutWarehouseNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutWarehouseNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedUpdateManyWithoutWarehouseNestedInput
+}
+
+export type WarehouseCreateWithoutInventoryMovementsInput = {
+  id?: string
+  code: string
+  name: string
+  status?: $Enums.EntityStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  branch: Prisma.BranchCreateNestedOneWithoutWarehousesInput
+  inventoryBalances?: Prisma.InventoryBalanceCreateNestedManyWithoutWarehouseInput
+  purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutWarehouseInput
+  goodsReceipts?: Prisma.GoodsReceiptCreateNestedManyWithoutWarehouseInput
+}
+
+export type WarehouseUncheckedCreateWithoutInventoryMovementsInput = {
+  id?: string
+  organizationId: string
+  branchId: string
+  code: string
+  name: string
+  status?: $Enums.EntityStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutWarehouseInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutWarehouseInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedCreateNestedManyWithoutWarehouseInput
+}
+
+export type WarehouseCreateOrConnectWithoutInventoryMovementsInput = {
+  where: Prisma.WarehouseWhereUniqueInput
+  create: Prisma.XOR<Prisma.WarehouseCreateWithoutInventoryMovementsInput, Prisma.WarehouseUncheckedCreateWithoutInventoryMovementsInput>
+}
+
+export type WarehouseUpsertWithoutInventoryMovementsInput = {
+  update: Prisma.XOR<Prisma.WarehouseUpdateWithoutInventoryMovementsInput, Prisma.WarehouseUncheckedUpdateWithoutInventoryMovementsInput>
+  create: Prisma.XOR<Prisma.WarehouseCreateWithoutInventoryMovementsInput, Prisma.WarehouseUncheckedCreateWithoutInventoryMovementsInput>
+  where?: Prisma.WarehouseWhereInput
+}
+
+export type WarehouseUpdateToOneWithWhereWithoutInventoryMovementsInput = {
+  where?: Prisma.WarehouseWhereInput
+  data: Prisma.XOR<Prisma.WarehouseUpdateWithoutInventoryMovementsInput, Prisma.WarehouseUncheckedUpdateWithoutInventoryMovementsInput>
+}
+
+export type WarehouseUpdateWithoutInventoryMovementsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumEntityStatusFieldUpdateOperationsInput | $Enums.EntityStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  branch?: Prisma.BranchUpdateOneRequiredWithoutWarehousesNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUpdateManyWithoutWarehouseNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutWarehouseNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUpdateManyWithoutWarehouseNestedInput
+}
+
+export type WarehouseUncheckedUpdateWithoutInventoryMovementsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  branchId?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumEntityStatusFieldUpdateOperationsInput | $Enums.EntityStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutWarehouseNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutWarehouseNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedUpdateManyWithoutWarehouseNestedInput
+}
+
+export type WarehouseCreateWithoutPurchaseOrdersInput = {
+  id?: string
+  code: string
+  name: string
+  status?: $Enums.EntityStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  branch: Prisma.BranchCreateNestedOneWithoutWarehousesInput
+  inventoryBalances?: Prisma.InventoryBalanceCreateNestedManyWithoutWarehouseInput
+  inventoryMovements?: Prisma.InventoryMovementCreateNestedManyWithoutWarehouseInput
+  goodsReceipts?: Prisma.GoodsReceiptCreateNestedManyWithoutWarehouseInput
+}
+
+export type WarehouseUncheckedCreateWithoutPurchaseOrdersInput = {
+  id?: string
+  organizationId: string
+  branchId: string
+  code: string
+  name: string
+  status?: $Enums.EntityStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutWarehouseInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutWarehouseInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedCreateNestedManyWithoutWarehouseInput
+}
+
+export type WarehouseCreateOrConnectWithoutPurchaseOrdersInput = {
+  where: Prisma.WarehouseWhereUniqueInput
+  create: Prisma.XOR<Prisma.WarehouseCreateWithoutPurchaseOrdersInput, Prisma.WarehouseUncheckedCreateWithoutPurchaseOrdersInput>
+}
+
+export type WarehouseUpsertWithoutPurchaseOrdersInput = {
+  update: Prisma.XOR<Prisma.WarehouseUpdateWithoutPurchaseOrdersInput, Prisma.WarehouseUncheckedUpdateWithoutPurchaseOrdersInput>
+  create: Prisma.XOR<Prisma.WarehouseCreateWithoutPurchaseOrdersInput, Prisma.WarehouseUncheckedCreateWithoutPurchaseOrdersInput>
+  where?: Prisma.WarehouseWhereInput
+}
+
+export type WarehouseUpdateToOneWithWhereWithoutPurchaseOrdersInput = {
+  where?: Prisma.WarehouseWhereInput
+  data: Prisma.XOR<Prisma.WarehouseUpdateWithoutPurchaseOrdersInput, Prisma.WarehouseUncheckedUpdateWithoutPurchaseOrdersInput>
+}
+
+export type WarehouseUpdateWithoutPurchaseOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumEntityStatusFieldUpdateOperationsInput | $Enums.EntityStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  branch?: Prisma.BranchUpdateOneRequiredWithoutWarehousesNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUpdateManyWithoutWarehouseNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUpdateManyWithoutWarehouseNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUpdateManyWithoutWarehouseNestedInput
+}
+
+export type WarehouseUncheckedUpdateWithoutPurchaseOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  branchId?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumEntityStatusFieldUpdateOperationsInput | $Enums.EntityStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutWarehouseNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutWarehouseNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedUpdateManyWithoutWarehouseNestedInput
+}
+
+export type WarehouseCreateWithoutGoodsReceiptsInput = {
+  id?: string
+  code: string
+  name: string
+  status?: $Enums.EntityStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  branch: Prisma.BranchCreateNestedOneWithoutWarehousesInput
+  inventoryBalances?: Prisma.InventoryBalanceCreateNestedManyWithoutWarehouseInput
+  inventoryMovements?: Prisma.InventoryMovementCreateNestedManyWithoutWarehouseInput
+  purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutWarehouseInput
+}
+
+export type WarehouseUncheckedCreateWithoutGoodsReceiptsInput = {
+  id?: string
+  organizationId: string
+  branchId: string
+  code: string
+  name: string
+  status?: $Enums.EntityStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutWarehouseInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutWarehouseInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutWarehouseInput
+}
+
+export type WarehouseCreateOrConnectWithoutGoodsReceiptsInput = {
+  where: Prisma.WarehouseWhereUniqueInput
+  create: Prisma.XOR<Prisma.WarehouseCreateWithoutGoodsReceiptsInput, Prisma.WarehouseUncheckedCreateWithoutGoodsReceiptsInput>
+}
+
+export type WarehouseUpsertWithoutGoodsReceiptsInput = {
+  update: Prisma.XOR<Prisma.WarehouseUpdateWithoutGoodsReceiptsInput, Prisma.WarehouseUncheckedUpdateWithoutGoodsReceiptsInput>
+  create: Prisma.XOR<Prisma.WarehouseCreateWithoutGoodsReceiptsInput, Prisma.WarehouseUncheckedCreateWithoutGoodsReceiptsInput>
+  where?: Prisma.WarehouseWhereInput
+}
+
+export type WarehouseUpdateToOneWithWhereWithoutGoodsReceiptsInput = {
+  where?: Prisma.WarehouseWhereInput
+  data: Prisma.XOR<Prisma.WarehouseUpdateWithoutGoodsReceiptsInput, Prisma.WarehouseUncheckedUpdateWithoutGoodsReceiptsInput>
+}
+
+export type WarehouseUpdateWithoutGoodsReceiptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumEntityStatusFieldUpdateOperationsInput | $Enums.EntityStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  branch?: Prisma.BranchUpdateOneRequiredWithoutWarehousesNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUpdateManyWithoutWarehouseNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUpdateManyWithoutWarehouseNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutWarehouseNestedInput
+}
+
+export type WarehouseUncheckedUpdateWithoutGoodsReceiptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  branchId?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumEntityStatusFieldUpdateOperationsInput | $Enums.EntityStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutWarehouseNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutWarehouseNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutWarehouseNestedInput
+}
+
 export type WarehouseCreateManyBranchInput = {
   id?: string
   code: string
@@ -529,6 +928,10 @@ export type WarehouseUpdateWithoutBranchInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inventoryBalances?: Prisma.InventoryBalanceUpdateManyWithoutWarehouseNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUpdateManyWithoutWarehouseNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutWarehouseNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUpdateManyWithoutWarehouseNestedInput
 }
 
 export type WarehouseUncheckedUpdateWithoutBranchInput = {
@@ -539,6 +942,10 @@ export type WarehouseUncheckedUpdateWithoutBranchInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutWarehouseNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutWarehouseNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutWarehouseNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedUpdateManyWithoutWarehouseNestedInput
 }
 
 export type WarehouseUncheckedUpdateManyWithoutBranchInput = {
@@ -552,6 +959,62 @@ export type WarehouseUncheckedUpdateManyWithoutBranchInput = {
 }
 
 
+/**
+ * Count Type WarehouseCountOutputType
+ */
+
+export type WarehouseCountOutputType = {
+  inventoryBalances: number
+  inventoryMovements: number
+  purchaseOrders: number
+  goodsReceipts: number
+}
+
+export type WarehouseCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  inventoryBalances?: boolean | WarehouseCountOutputTypeCountInventoryBalancesArgs
+  inventoryMovements?: boolean | WarehouseCountOutputTypeCountInventoryMovementsArgs
+  purchaseOrders?: boolean | WarehouseCountOutputTypeCountPurchaseOrdersArgs
+  goodsReceipts?: boolean | WarehouseCountOutputTypeCountGoodsReceiptsArgs
+}
+
+/**
+ * WarehouseCountOutputType without action
+ */
+export type WarehouseCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WarehouseCountOutputType
+   */
+  select?: Prisma.WarehouseCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * WarehouseCountOutputType without action
+ */
+export type WarehouseCountOutputTypeCountInventoryBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.InventoryBalanceWhereInput
+}
+
+/**
+ * WarehouseCountOutputType without action
+ */
+export type WarehouseCountOutputTypeCountInventoryMovementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.InventoryMovementWhereInput
+}
+
+/**
+ * WarehouseCountOutputType without action
+ */
+export type WarehouseCountOutputTypeCountPurchaseOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PurchaseOrderWhereInput
+}
+
+/**
+ * WarehouseCountOutputType without action
+ */
+export type WarehouseCountOutputTypeCountGoodsReceiptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.GoodsReceiptWhereInput
+}
+
 
 export type WarehouseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -564,6 +1027,11 @@ export type WarehouseSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   updatedAt?: boolean
   deletedAt?: boolean
   branch?: boolean | Prisma.BranchDefaultArgs<ExtArgs>
+  inventoryBalances?: boolean | Prisma.Warehouse$inventoryBalancesArgs<ExtArgs>
+  inventoryMovements?: boolean | Prisma.Warehouse$inventoryMovementsArgs<ExtArgs>
+  purchaseOrders?: boolean | Prisma.Warehouse$purchaseOrdersArgs<ExtArgs>
+  goodsReceipts?: boolean | Prisma.Warehouse$goodsReceiptsArgs<ExtArgs>
+  _count?: boolean | Prisma.WarehouseCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["warehouse"]>
 
 export type WarehouseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -607,6 +1075,11 @@ export type WarehouseSelectScalar = {
 export type WarehouseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "branchId" | "code" | "name" | "status" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["warehouse"]>
 export type WarehouseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   branch?: boolean | Prisma.BranchDefaultArgs<ExtArgs>
+  inventoryBalances?: boolean | Prisma.Warehouse$inventoryBalancesArgs<ExtArgs>
+  inventoryMovements?: boolean | Prisma.Warehouse$inventoryMovementsArgs<ExtArgs>
+  purchaseOrders?: boolean | Prisma.Warehouse$purchaseOrdersArgs<ExtArgs>
+  goodsReceipts?: boolean | Prisma.Warehouse$goodsReceiptsArgs<ExtArgs>
+  _count?: boolean | Prisma.WarehouseCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type WarehouseIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   branch?: boolean | Prisma.BranchDefaultArgs<ExtArgs>
@@ -619,6 +1092,10 @@ export type $WarehousePayload<ExtArgs extends runtime.Types.Extensions.InternalA
   name: "Warehouse"
   objects: {
     branch: Prisma.$BranchPayload<ExtArgs>
+    inventoryBalances: Prisma.$InventoryBalancePayload<ExtArgs>[]
+    inventoryMovements: Prisma.$InventoryMovementPayload<ExtArgs>[]
+    purchaseOrders: Prisma.$PurchaseOrderPayload<ExtArgs>[]
+    goodsReceipts: Prisma.$GoodsReceiptPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1025,6 +1502,10 @@ readonly fields: WarehouseFieldRefs;
 export interface Prisma__WarehouseClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   branch<T extends Prisma.BranchDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BranchDefaultArgs<ExtArgs>>): Prisma.Prisma__BranchClient<runtime.Types.Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  inventoryBalances<T extends Prisma.Warehouse$inventoryBalancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Warehouse$inventoryBalancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryBalancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  inventoryMovements<T extends Prisma.Warehouse$inventoryMovementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Warehouse$inventoryMovementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryMovementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  purchaseOrders<T extends Prisma.Warehouse$purchaseOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Warehouse$purchaseOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PurchaseOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  goodsReceipts<T extends Prisma.Warehouse$goodsReceiptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Warehouse$goodsReceiptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GoodsReceiptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1461,6 +1942,102 @@ export type WarehouseDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Limit how many Warehouses to delete.
    */
   limit?: number
+}
+
+/**
+ * Warehouse.inventoryBalances
+ */
+export type Warehouse$inventoryBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the InventoryBalance
+   */
+  select?: Prisma.InventoryBalanceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the InventoryBalance
+   */
+  omit?: Prisma.InventoryBalanceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryBalanceInclude<ExtArgs> | null
+  where?: Prisma.InventoryBalanceWhereInput
+  orderBy?: Prisma.InventoryBalanceOrderByWithRelationInput | Prisma.InventoryBalanceOrderByWithRelationInput[]
+  cursor?: Prisma.InventoryBalanceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.InventoryBalanceScalarFieldEnum | Prisma.InventoryBalanceScalarFieldEnum[]
+}
+
+/**
+ * Warehouse.inventoryMovements
+ */
+export type Warehouse$inventoryMovementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the InventoryMovement
+   */
+  select?: Prisma.InventoryMovementSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the InventoryMovement
+   */
+  omit?: Prisma.InventoryMovementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryMovementInclude<ExtArgs> | null
+  where?: Prisma.InventoryMovementWhereInput
+  orderBy?: Prisma.InventoryMovementOrderByWithRelationInput | Prisma.InventoryMovementOrderByWithRelationInput[]
+  cursor?: Prisma.InventoryMovementWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.InventoryMovementScalarFieldEnum | Prisma.InventoryMovementScalarFieldEnum[]
+}
+
+/**
+ * Warehouse.purchaseOrders
+ */
+export type Warehouse$purchaseOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PurchaseOrder
+   */
+  select?: Prisma.PurchaseOrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PurchaseOrder
+   */
+  omit?: Prisma.PurchaseOrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PurchaseOrderInclude<ExtArgs> | null
+  where?: Prisma.PurchaseOrderWhereInput
+  orderBy?: Prisma.PurchaseOrderOrderByWithRelationInput | Prisma.PurchaseOrderOrderByWithRelationInput[]
+  cursor?: Prisma.PurchaseOrderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PurchaseOrderScalarFieldEnum | Prisma.PurchaseOrderScalarFieldEnum[]
+}
+
+/**
+ * Warehouse.goodsReceipts
+ */
+export type Warehouse$goodsReceiptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the GoodsReceipt
+   */
+  select?: Prisma.GoodsReceiptSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the GoodsReceipt
+   */
+  omit?: Prisma.GoodsReceiptOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.GoodsReceiptInclude<ExtArgs> | null
+  where?: Prisma.GoodsReceiptWhereInput
+  orderBy?: Prisma.GoodsReceiptOrderByWithRelationInput | Prisma.GoodsReceiptOrderByWithRelationInput[]
+  cursor?: Prisma.GoodsReceiptWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.GoodsReceiptScalarFieldEnum | Prisma.GoodsReceiptScalarFieldEnum[]
 }
 
 /**

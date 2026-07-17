@@ -215,6 +215,13 @@ export type OrganizationWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"Organization"> | Date | string | null
   restaurants?: Prisma.RestaurantListRelationFilter
+  productCategories?: Prisma.ProductCategoryListRelationFilter
+  unitsOfMeasure?: Prisma.UnitOfMeasureListRelationFilter
+  suppliers?: Prisma.SupplierListRelationFilter
+  inventoryBalances?: Prisma.InventoryBalanceListRelationFilter
+  inventoryMovements?: Prisma.InventoryMovementListRelationFilter
+  purchaseOrders?: Prisma.PurchaseOrderListRelationFilter
+  goodsReceipts?: Prisma.GoodsReceiptListRelationFilter
 }
 
 export type OrganizationOrderByWithRelationInput = {
@@ -228,6 +235,13 @@ export type OrganizationOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   restaurants?: Prisma.RestaurantOrderByRelationAggregateInput
+  productCategories?: Prisma.ProductCategoryOrderByRelationAggregateInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureOrderByRelationAggregateInput
+  suppliers?: Prisma.SupplierOrderByRelationAggregateInput
+  inventoryBalances?: Prisma.InventoryBalanceOrderByRelationAggregateInput
+  inventoryMovements?: Prisma.InventoryMovementOrderByRelationAggregateInput
+  purchaseOrders?: Prisma.PurchaseOrderOrderByRelationAggregateInput
+  goodsReceipts?: Prisma.GoodsReceiptOrderByRelationAggregateInput
 }
 
 export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
@@ -244,6 +258,13 @@ export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"Organization"> | Date | string | null
   restaurants?: Prisma.RestaurantListRelationFilter
+  productCategories?: Prisma.ProductCategoryListRelationFilter
+  unitsOfMeasure?: Prisma.UnitOfMeasureListRelationFilter
+  suppliers?: Prisma.SupplierListRelationFilter
+  inventoryBalances?: Prisma.InventoryBalanceListRelationFilter
+  inventoryMovements?: Prisma.InventoryMovementListRelationFilter
+  purchaseOrders?: Prisma.PurchaseOrderListRelationFilter
+  goodsReceipts?: Prisma.GoodsReceiptListRelationFilter
 }, "id" | "slug">
 
 export type OrganizationOrderByWithAggregationInput = {
@@ -287,6 +308,13 @@ export type OrganizationCreateInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   restaurants?: Prisma.RestaurantCreateNestedManyWithoutOrganizationInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutOrganizationInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureCreateNestedManyWithoutOrganizationInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutOrganizationInput
+  inventoryBalances?: Prisma.InventoryBalanceCreateNestedManyWithoutOrganizationInput
+  inventoryMovements?: Prisma.InventoryMovementCreateNestedManyWithoutOrganizationInput
+  purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutOrganizationInput
+  goodsReceipts?: Prisma.GoodsReceiptCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateInput = {
@@ -300,6 +328,13 @@ export type OrganizationUncheckedCreateInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   restaurants?: Prisma.RestaurantUncheckedCreateNestedManyWithoutOrganizationInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutOrganizationInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUncheckedCreateNestedManyWithoutOrganizationInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutOrganizationInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutOrganizationInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutOrganizationInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutOrganizationInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUpdateInput = {
@@ -313,6 +348,13 @@ export type OrganizationUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restaurants?: Prisma.RestaurantUpdateManyWithoutOrganizationNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutOrganizationNestedInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUpdateManyWithoutOrganizationNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutOrganizationNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUpdateManyWithoutOrganizationNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUpdateManyWithoutOrganizationNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutOrganizationNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateInput = {
@@ -326,6 +368,13 @@ export type OrganizationUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restaurants?: Prisma.RestaurantUncheckedUpdateManyWithoutOrganizationNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutOrganizationNestedInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUncheckedUpdateManyWithoutOrganizationNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutOrganizationNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutOrganizationNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutOrganizationNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateManyInput = {
@@ -435,6 +484,104 @@ export type OrganizationUpdateOneRequiredWithoutRestaurantsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutRestaurantsInput, Prisma.OrganizationUpdateWithoutRestaurantsInput>, Prisma.OrganizationUncheckedUpdateWithoutRestaurantsInput>
 }
 
+export type OrganizationCreateNestedOneWithoutProductCategoriesInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutProductCategoriesInput, Prisma.OrganizationUncheckedCreateWithoutProductCategoriesInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutProductCategoriesInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+}
+
+export type OrganizationUpdateOneRequiredWithoutProductCategoriesNestedInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutProductCategoriesInput, Prisma.OrganizationUncheckedCreateWithoutProductCategoriesInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutProductCategoriesInput
+  upsert?: Prisma.OrganizationUpsertWithoutProductCategoriesInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutProductCategoriesInput, Prisma.OrganizationUpdateWithoutProductCategoriesInput>, Prisma.OrganizationUncheckedUpdateWithoutProductCategoriesInput>
+}
+
+export type OrganizationCreateNestedOneWithoutUnitsOfMeasureInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutUnitsOfMeasureInput, Prisma.OrganizationUncheckedCreateWithoutUnitsOfMeasureInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutUnitsOfMeasureInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+}
+
+export type OrganizationUpdateOneRequiredWithoutUnitsOfMeasureNestedInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutUnitsOfMeasureInput, Prisma.OrganizationUncheckedCreateWithoutUnitsOfMeasureInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutUnitsOfMeasureInput
+  upsert?: Prisma.OrganizationUpsertWithoutUnitsOfMeasureInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutUnitsOfMeasureInput, Prisma.OrganizationUpdateWithoutUnitsOfMeasureInput>, Prisma.OrganizationUncheckedUpdateWithoutUnitsOfMeasureInput>
+}
+
+export type OrganizationCreateNestedOneWithoutSuppliersInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutSuppliersInput, Prisma.OrganizationUncheckedCreateWithoutSuppliersInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutSuppliersInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+}
+
+export type OrganizationUpdateOneRequiredWithoutSuppliersNestedInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutSuppliersInput, Prisma.OrganizationUncheckedCreateWithoutSuppliersInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutSuppliersInput
+  upsert?: Prisma.OrganizationUpsertWithoutSuppliersInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutSuppliersInput, Prisma.OrganizationUpdateWithoutSuppliersInput>, Prisma.OrganizationUncheckedUpdateWithoutSuppliersInput>
+}
+
+export type OrganizationCreateNestedOneWithoutInventoryBalancesInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutInventoryBalancesInput, Prisma.OrganizationUncheckedCreateWithoutInventoryBalancesInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutInventoryBalancesInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+}
+
+export type OrganizationUpdateOneRequiredWithoutInventoryBalancesNestedInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutInventoryBalancesInput, Prisma.OrganizationUncheckedCreateWithoutInventoryBalancesInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutInventoryBalancesInput
+  upsert?: Prisma.OrganizationUpsertWithoutInventoryBalancesInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutInventoryBalancesInput, Prisma.OrganizationUpdateWithoutInventoryBalancesInput>, Prisma.OrganizationUncheckedUpdateWithoutInventoryBalancesInput>
+}
+
+export type OrganizationCreateNestedOneWithoutInventoryMovementsInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutInventoryMovementsInput, Prisma.OrganizationUncheckedCreateWithoutInventoryMovementsInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutInventoryMovementsInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+}
+
+export type OrganizationUpdateOneRequiredWithoutInventoryMovementsNestedInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutInventoryMovementsInput, Prisma.OrganizationUncheckedCreateWithoutInventoryMovementsInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutInventoryMovementsInput
+  upsert?: Prisma.OrganizationUpsertWithoutInventoryMovementsInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutInventoryMovementsInput, Prisma.OrganizationUpdateWithoutInventoryMovementsInput>, Prisma.OrganizationUncheckedUpdateWithoutInventoryMovementsInput>
+}
+
+export type OrganizationCreateNestedOneWithoutPurchaseOrdersInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutPurchaseOrdersInput, Prisma.OrganizationUncheckedCreateWithoutPurchaseOrdersInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutPurchaseOrdersInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+}
+
+export type OrganizationUpdateOneRequiredWithoutPurchaseOrdersNestedInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutPurchaseOrdersInput, Prisma.OrganizationUncheckedCreateWithoutPurchaseOrdersInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutPurchaseOrdersInput
+  upsert?: Prisma.OrganizationUpsertWithoutPurchaseOrdersInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutPurchaseOrdersInput, Prisma.OrganizationUpdateWithoutPurchaseOrdersInput>, Prisma.OrganizationUncheckedUpdateWithoutPurchaseOrdersInput>
+}
+
+export type OrganizationCreateNestedOneWithoutGoodsReceiptsInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutGoodsReceiptsInput, Prisma.OrganizationUncheckedCreateWithoutGoodsReceiptsInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutGoodsReceiptsInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+}
+
+export type OrganizationUpdateOneRequiredWithoutGoodsReceiptsNestedInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutGoodsReceiptsInput, Prisma.OrganizationUncheckedCreateWithoutGoodsReceiptsInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutGoodsReceiptsInput
+  upsert?: Prisma.OrganizationUpsertWithoutGoodsReceiptsInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutGoodsReceiptsInput, Prisma.OrganizationUpdateWithoutGoodsReceiptsInput>, Prisma.OrganizationUncheckedUpdateWithoutGoodsReceiptsInput>
+}
+
 export type OrganizationCreateWithoutRestaurantsInput = {
   id?: string
   name: string
@@ -445,6 +592,13 @@ export type OrganizationCreateWithoutRestaurantsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutOrganizationInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureCreateNestedManyWithoutOrganizationInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutOrganizationInput
+  inventoryBalances?: Prisma.InventoryBalanceCreateNestedManyWithoutOrganizationInput
+  inventoryMovements?: Prisma.InventoryMovementCreateNestedManyWithoutOrganizationInput
+  purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutOrganizationInput
+  goodsReceipts?: Prisma.GoodsReceiptCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutRestaurantsInput = {
@@ -457,6 +611,13 @@ export type OrganizationUncheckedCreateWithoutRestaurantsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutOrganizationInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUncheckedCreateNestedManyWithoutOrganizationInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutOrganizationInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutOrganizationInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutOrganizationInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutOrganizationInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutRestaurantsInput = {
@@ -485,6 +646,13 @@ export type OrganizationUpdateWithoutRestaurantsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutOrganizationNestedInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUpdateManyWithoutOrganizationNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutOrganizationNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUpdateManyWithoutOrganizationNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUpdateManyWithoutOrganizationNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutOrganizationNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutRestaurantsInput = {
@@ -497,6 +665,657 @@ export type OrganizationUncheckedUpdateWithoutRestaurantsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutOrganizationNestedInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUncheckedUpdateManyWithoutOrganizationNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutOrganizationNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutOrganizationNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutOrganizationNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationCreateWithoutProductCategoriesInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: $Enums.OrganizationStatus
+  timezone?: string
+  currencyCode?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  restaurants?: Prisma.RestaurantCreateNestedManyWithoutOrganizationInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureCreateNestedManyWithoutOrganizationInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutOrganizationInput
+  inventoryBalances?: Prisma.InventoryBalanceCreateNestedManyWithoutOrganizationInput
+  inventoryMovements?: Prisma.InventoryMovementCreateNestedManyWithoutOrganizationInput
+  purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutOrganizationInput
+  goodsReceipts?: Prisma.GoodsReceiptCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationUncheckedCreateWithoutProductCategoriesInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: $Enums.OrganizationStatus
+  timezone?: string
+  currencyCode?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  restaurants?: Prisma.RestaurantUncheckedCreateNestedManyWithoutOrganizationInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUncheckedCreateNestedManyWithoutOrganizationInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutOrganizationInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutOrganizationInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutOrganizationInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutOrganizationInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationCreateOrConnectWithoutProductCategoriesInput = {
+  where: Prisma.OrganizationWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutProductCategoriesInput, Prisma.OrganizationUncheckedCreateWithoutProductCategoriesInput>
+}
+
+export type OrganizationUpsertWithoutProductCategoriesInput = {
+  update: Prisma.XOR<Prisma.OrganizationUpdateWithoutProductCategoriesInput, Prisma.OrganizationUncheckedUpdateWithoutProductCategoriesInput>
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutProductCategoriesInput, Prisma.OrganizationUncheckedCreateWithoutProductCategoriesInput>
+  where?: Prisma.OrganizationWhereInput
+}
+
+export type OrganizationUpdateToOneWithWhereWithoutProductCategoriesInput = {
+  where?: Prisma.OrganizationWhereInput
+  data: Prisma.XOR<Prisma.OrganizationUpdateWithoutProductCategoriesInput, Prisma.OrganizationUncheckedUpdateWithoutProductCategoriesInput>
+}
+
+export type OrganizationUpdateWithoutProductCategoriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrganizationStatusFieldUpdateOperationsInput | $Enums.OrganizationStatus
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restaurants?: Prisma.RestaurantUpdateManyWithoutOrganizationNestedInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUpdateManyWithoutOrganizationNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutOrganizationNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUpdateManyWithoutOrganizationNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUpdateManyWithoutOrganizationNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutOrganizationNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationUncheckedUpdateWithoutProductCategoriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrganizationStatusFieldUpdateOperationsInput | $Enums.OrganizationStatus
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restaurants?: Prisma.RestaurantUncheckedUpdateManyWithoutOrganizationNestedInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUncheckedUpdateManyWithoutOrganizationNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutOrganizationNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutOrganizationNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutOrganizationNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationCreateWithoutUnitsOfMeasureInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: $Enums.OrganizationStatus
+  timezone?: string
+  currencyCode?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  restaurants?: Prisma.RestaurantCreateNestedManyWithoutOrganizationInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutOrganizationInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutOrganizationInput
+  inventoryBalances?: Prisma.InventoryBalanceCreateNestedManyWithoutOrganizationInput
+  inventoryMovements?: Prisma.InventoryMovementCreateNestedManyWithoutOrganizationInput
+  purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutOrganizationInput
+  goodsReceipts?: Prisma.GoodsReceiptCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationUncheckedCreateWithoutUnitsOfMeasureInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: $Enums.OrganizationStatus
+  timezone?: string
+  currencyCode?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  restaurants?: Prisma.RestaurantUncheckedCreateNestedManyWithoutOrganizationInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutOrganizationInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutOrganizationInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutOrganizationInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutOrganizationInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutOrganizationInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationCreateOrConnectWithoutUnitsOfMeasureInput = {
+  where: Prisma.OrganizationWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutUnitsOfMeasureInput, Prisma.OrganizationUncheckedCreateWithoutUnitsOfMeasureInput>
+}
+
+export type OrganizationUpsertWithoutUnitsOfMeasureInput = {
+  update: Prisma.XOR<Prisma.OrganizationUpdateWithoutUnitsOfMeasureInput, Prisma.OrganizationUncheckedUpdateWithoutUnitsOfMeasureInput>
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutUnitsOfMeasureInput, Prisma.OrganizationUncheckedCreateWithoutUnitsOfMeasureInput>
+  where?: Prisma.OrganizationWhereInput
+}
+
+export type OrganizationUpdateToOneWithWhereWithoutUnitsOfMeasureInput = {
+  where?: Prisma.OrganizationWhereInput
+  data: Prisma.XOR<Prisma.OrganizationUpdateWithoutUnitsOfMeasureInput, Prisma.OrganizationUncheckedUpdateWithoutUnitsOfMeasureInput>
+}
+
+export type OrganizationUpdateWithoutUnitsOfMeasureInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrganizationStatusFieldUpdateOperationsInput | $Enums.OrganizationStatus
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restaurants?: Prisma.RestaurantUpdateManyWithoutOrganizationNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutOrganizationNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutOrganizationNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUpdateManyWithoutOrganizationNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUpdateManyWithoutOrganizationNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutOrganizationNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationUncheckedUpdateWithoutUnitsOfMeasureInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrganizationStatusFieldUpdateOperationsInput | $Enums.OrganizationStatus
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restaurants?: Prisma.RestaurantUncheckedUpdateManyWithoutOrganizationNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutOrganizationNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutOrganizationNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutOrganizationNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutOrganizationNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationCreateWithoutSuppliersInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: $Enums.OrganizationStatus
+  timezone?: string
+  currencyCode?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  restaurants?: Prisma.RestaurantCreateNestedManyWithoutOrganizationInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutOrganizationInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureCreateNestedManyWithoutOrganizationInput
+  inventoryBalances?: Prisma.InventoryBalanceCreateNestedManyWithoutOrganizationInput
+  inventoryMovements?: Prisma.InventoryMovementCreateNestedManyWithoutOrganizationInput
+  purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutOrganizationInput
+  goodsReceipts?: Prisma.GoodsReceiptCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationUncheckedCreateWithoutSuppliersInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: $Enums.OrganizationStatus
+  timezone?: string
+  currencyCode?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  restaurants?: Prisma.RestaurantUncheckedCreateNestedManyWithoutOrganizationInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutOrganizationInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUncheckedCreateNestedManyWithoutOrganizationInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutOrganizationInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutOrganizationInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutOrganizationInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationCreateOrConnectWithoutSuppliersInput = {
+  where: Prisma.OrganizationWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutSuppliersInput, Prisma.OrganizationUncheckedCreateWithoutSuppliersInput>
+}
+
+export type OrganizationUpsertWithoutSuppliersInput = {
+  update: Prisma.XOR<Prisma.OrganizationUpdateWithoutSuppliersInput, Prisma.OrganizationUncheckedUpdateWithoutSuppliersInput>
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutSuppliersInput, Prisma.OrganizationUncheckedCreateWithoutSuppliersInput>
+  where?: Prisma.OrganizationWhereInput
+}
+
+export type OrganizationUpdateToOneWithWhereWithoutSuppliersInput = {
+  where?: Prisma.OrganizationWhereInput
+  data: Prisma.XOR<Prisma.OrganizationUpdateWithoutSuppliersInput, Prisma.OrganizationUncheckedUpdateWithoutSuppliersInput>
+}
+
+export type OrganizationUpdateWithoutSuppliersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrganizationStatusFieldUpdateOperationsInput | $Enums.OrganizationStatus
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restaurants?: Prisma.RestaurantUpdateManyWithoutOrganizationNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutOrganizationNestedInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUpdateManyWithoutOrganizationNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUpdateManyWithoutOrganizationNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUpdateManyWithoutOrganizationNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutOrganizationNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationUncheckedUpdateWithoutSuppliersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrganizationStatusFieldUpdateOperationsInput | $Enums.OrganizationStatus
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restaurants?: Prisma.RestaurantUncheckedUpdateManyWithoutOrganizationNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutOrganizationNestedInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUncheckedUpdateManyWithoutOrganizationNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutOrganizationNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutOrganizationNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationCreateWithoutInventoryBalancesInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: $Enums.OrganizationStatus
+  timezone?: string
+  currencyCode?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  restaurants?: Prisma.RestaurantCreateNestedManyWithoutOrganizationInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutOrganizationInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureCreateNestedManyWithoutOrganizationInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutOrganizationInput
+  inventoryMovements?: Prisma.InventoryMovementCreateNestedManyWithoutOrganizationInput
+  purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutOrganizationInput
+  goodsReceipts?: Prisma.GoodsReceiptCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationUncheckedCreateWithoutInventoryBalancesInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: $Enums.OrganizationStatus
+  timezone?: string
+  currencyCode?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  restaurants?: Prisma.RestaurantUncheckedCreateNestedManyWithoutOrganizationInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutOrganizationInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUncheckedCreateNestedManyWithoutOrganizationInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutOrganizationInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutOrganizationInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutOrganizationInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationCreateOrConnectWithoutInventoryBalancesInput = {
+  where: Prisma.OrganizationWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutInventoryBalancesInput, Prisma.OrganizationUncheckedCreateWithoutInventoryBalancesInput>
+}
+
+export type OrganizationUpsertWithoutInventoryBalancesInput = {
+  update: Prisma.XOR<Prisma.OrganizationUpdateWithoutInventoryBalancesInput, Prisma.OrganizationUncheckedUpdateWithoutInventoryBalancesInput>
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutInventoryBalancesInput, Prisma.OrganizationUncheckedCreateWithoutInventoryBalancesInput>
+  where?: Prisma.OrganizationWhereInput
+}
+
+export type OrganizationUpdateToOneWithWhereWithoutInventoryBalancesInput = {
+  where?: Prisma.OrganizationWhereInput
+  data: Prisma.XOR<Prisma.OrganizationUpdateWithoutInventoryBalancesInput, Prisma.OrganizationUncheckedUpdateWithoutInventoryBalancesInput>
+}
+
+export type OrganizationUpdateWithoutInventoryBalancesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrganizationStatusFieldUpdateOperationsInput | $Enums.OrganizationStatus
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restaurants?: Prisma.RestaurantUpdateManyWithoutOrganizationNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutOrganizationNestedInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUpdateManyWithoutOrganizationNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutOrganizationNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUpdateManyWithoutOrganizationNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutOrganizationNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationUncheckedUpdateWithoutInventoryBalancesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrganizationStatusFieldUpdateOperationsInput | $Enums.OrganizationStatus
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restaurants?: Prisma.RestaurantUncheckedUpdateManyWithoutOrganizationNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutOrganizationNestedInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUncheckedUpdateManyWithoutOrganizationNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutOrganizationNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutOrganizationNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationCreateWithoutInventoryMovementsInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: $Enums.OrganizationStatus
+  timezone?: string
+  currencyCode?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  restaurants?: Prisma.RestaurantCreateNestedManyWithoutOrganizationInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutOrganizationInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureCreateNestedManyWithoutOrganizationInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutOrganizationInput
+  inventoryBalances?: Prisma.InventoryBalanceCreateNestedManyWithoutOrganizationInput
+  purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutOrganizationInput
+  goodsReceipts?: Prisma.GoodsReceiptCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationUncheckedCreateWithoutInventoryMovementsInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: $Enums.OrganizationStatus
+  timezone?: string
+  currencyCode?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  restaurants?: Prisma.RestaurantUncheckedCreateNestedManyWithoutOrganizationInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutOrganizationInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUncheckedCreateNestedManyWithoutOrganizationInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutOrganizationInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutOrganizationInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutOrganizationInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationCreateOrConnectWithoutInventoryMovementsInput = {
+  where: Prisma.OrganizationWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutInventoryMovementsInput, Prisma.OrganizationUncheckedCreateWithoutInventoryMovementsInput>
+}
+
+export type OrganizationUpsertWithoutInventoryMovementsInput = {
+  update: Prisma.XOR<Prisma.OrganizationUpdateWithoutInventoryMovementsInput, Prisma.OrganizationUncheckedUpdateWithoutInventoryMovementsInput>
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutInventoryMovementsInput, Prisma.OrganizationUncheckedCreateWithoutInventoryMovementsInput>
+  where?: Prisma.OrganizationWhereInput
+}
+
+export type OrganizationUpdateToOneWithWhereWithoutInventoryMovementsInput = {
+  where?: Prisma.OrganizationWhereInput
+  data: Prisma.XOR<Prisma.OrganizationUpdateWithoutInventoryMovementsInput, Prisma.OrganizationUncheckedUpdateWithoutInventoryMovementsInput>
+}
+
+export type OrganizationUpdateWithoutInventoryMovementsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrganizationStatusFieldUpdateOperationsInput | $Enums.OrganizationStatus
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restaurants?: Prisma.RestaurantUpdateManyWithoutOrganizationNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutOrganizationNestedInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUpdateManyWithoutOrganizationNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutOrganizationNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUpdateManyWithoutOrganizationNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutOrganizationNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationUncheckedUpdateWithoutInventoryMovementsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrganizationStatusFieldUpdateOperationsInput | $Enums.OrganizationStatus
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restaurants?: Prisma.RestaurantUncheckedUpdateManyWithoutOrganizationNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutOrganizationNestedInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUncheckedUpdateManyWithoutOrganizationNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutOrganizationNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutOrganizationNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationCreateWithoutPurchaseOrdersInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: $Enums.OrganizationStatus
+  timezone?: string
+  currencyCode?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  restaurants?: Prisma.RestaurantCreateNestedManyWithoutOrganizationInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutOrganizationInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureCreateNestedManyWithoutOrganizationInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutOrganizationInput
+  inventoryBalances?: Prisma.InventoryBalanceCreateNestedManyWithoutOrganizationInput
+  inventoryMovements?: Prisma.InventoryMovementCreateNestedManyWithoutOrganizationInput
+  goodsReceipts?: Prisma.GoodsReceiptCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationUncheckedCreateWithoutPurchaseOrdersInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: $Enums.OrganizationStatus
+  timezone?: string
+  currencyCode?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  restaurants?: Prisma.RestaurantUncheckedCreateNestedManyWithoutOrganizationInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutOrganizationInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUncheckedCreateNestedManyWithoutOrganizationInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutOrganizationInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutOrganizationInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutOrganizationInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationCreateOrConnectWithoutPurchaseOrdersInput = {
+  where: Prisma.OrganizationWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutPurchaseOrdersInput, Prisma.OrganizationUncheckedCreateWithoutPurchaseOrdersInput>
+}
+
+export type OrganizationUpsertWithoutPurchaseOrdersInput = {
+  update: Prisma.XOR<Prisma.OrganizationUpdateWithoutPurchaseOrdersInput, Prisma.OrganizationUncheckedUpdateWithoutPurchaseOrdersInput>
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutPurchaseOrdersInput, Prisma.OrganizationUncheckedCreateWithoutPurchaseOrdersInput>
+  where?: Prisma.OrganizationWhereInput
+}
+
+export type OrganizationUpdateToOneWithWhereWithoutPurchaseOrdersInput = {
+  where?: Prisma.OrganizationWhereInput
+  data: Prisma.XOR<Prisma.OrganizationUpdateWithoutPurchaseOrdersInput, Prisma.OrganizationUncheckedUpdateWithoutPurchaseOrdersInput>
+}
+
+export type OrganizationUpdateWithoutPurchaseOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrganizationStatusFieldUpdateOperationsInput | $Enums.OrganizationStatus
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restaurants?: Prisma.RestaurantUpdateManyWithoutOrganizationNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutOrganizationNestedInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUpdateManyWithoutOrganizationNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutOrganizationNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUpdateManyWithoutOrganizationNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUpdateManyWithoutOrganizationNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationUncheckedUpdateWithoutPurchaseOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrganizationStatusFieldUpdateOperationsInput | $Enums.OrganizationStatus
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restaurants?: Prisma.RestaurantUncheckedUpdateManyWithoutOrganizationNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutOrganizationNestedInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUncheckedUpdateManyWithoutOrganizationNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutOrganizationNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutOrganizationNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutOrganizationNestedInput
+  goodsReceipts?: Prisma.GoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationCreateWithoutGoodsReceiptsInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: $Enums.OrganizationStatus
+  timezone?: string
+  currencyCode?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  restaurants?: Prisma.RestaurantCreateNestedManyWithoutOrganizationInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutOrganizationInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureCreateNestedManyWithoutOrganizationInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutOrganizationInput
+  inventoryBalances?: Prisma.InventoryBalanceCreateNestedManyWithoutOrganizationInput
+  inventoryMovements?: Prisma.InventoryMovementCreateNestedManyWithoutOrganizationInput
+  purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationUncheckedCreateWithoutGoodsReceiptsInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: $Enums.OrganizationStatus
+  timezone?: string
+  currencyCode?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  restaurants?: Prisma.RestaurantUncheckedCreateNestedManyWithoutOrganizationInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutOrganizationInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUncheckedCreateNestedManyWithoutOrganizationInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutOrganizationInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutOrganizationInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutOrganizationInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationCreateOrConnectWithoutGoodsReceiptsInput = {
+  where: Prisma.OrganizationWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutGoodsReceiptsInput, Prisma.OrganizationUncheckedCreateWithoutGoodsReceiptsInput>
+}
+
+export type OrganizationUpsertWithoutGoodsReceiptsInput = {
+  update: Prisma.XOR<Prisma.OrganizationUpdateWithoutGoodsReceiptsInput, Prisma.OrganizationUncheckedUpdateWithoutGoodsReceiptsInput>
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutGoodsReceiptsInput, Prisma.OrganizationUncheckedCreateWithoutGoodsReceiptsInput>
+  where?: Prisma.OrganizationWhereInput
+}
+
+export type OrganizationUpdateToOneWithWhereWithoutGoodsReceiptsInput = {
+  where?: Prisma.OrganizationWhereInput
+  data: Prisma.XOR<Prisma.OrganizationUpdateWithoutGoodsReceiptsInput, Prisma.OrganizationUncheckedUpdateWithoutGoodsReceiptsInput>
+}
+
+export type OrganizationUpdateWithoutGoodsReceiptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrganizationStatusFieldUpdateOperationsInput | $Enums.OrganizationStatus
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restaurants?: Prisma.RestaurantUpdateManyWithoutOrganizationNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutOrganizationNestedInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUpdateManyWithoutOrganizationNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutOrganizationNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUpdateManyWithoutOrganizationNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUpdateManyWithoutOrganizationNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationUncheckedUpdateWithoutGoodsReceiptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrganizationStatusFieldUpdateOperationsInput | $Enums.OrganizationStatus
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restaurants?: Prisma.RestaurantUncheckedUpdateManyWithoutOrganizationNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutOrganizationNestedInput
+  unitsOfMeasure?: Prisma.UnitOfMeasureUncheckedUpdateManyWithoutOrganizationNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutOrganizationNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutOrganizationNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutOrganizationNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 
@@ -506,10 +1325,24 @@ export type OrganizationUncheckedUpdateWithoutRestaurantsInput = {
 
 export type OrganizationCountOutputType = {
   restaurants: number
+  productCategories: number
+  unitsOfMeasure: number
+  suppliers: number
+  inventoryBalances: number
+  inventoryMovements: number
+  purchaseOrders: number
+  goodsReceipts: number
 }
 
 export type OrganizationCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   restaurants?: boolean | OrganizationCountOutputTypeCountRestaurantsArgs
+  productCategories?: boolean | OrganizationCountOutputTypeCountProductCategoriesArgs
+  unitsOfMeasure?: boolean | OrganizationCountOutputTypeCountUnitsOfMeasureArgs
+  suppliers?: boolean | OrganizationCountOutputTypeCountSuppliersArgs
+  inventoryBalances?: boolean | OrganizationCountOutputTypeCountInventoryBalancesArgs
+  inventoryMovements?: boolean | OrganizationCountOutputTypeCountInventoryMovementsArgs
+  purchaseOrders?: boolean | OrganizationCountOutputTypeCountPurchaseOrdersArgs
+  goodsReceipts?: boolean | OrganizationCountOutputTypeCountGoodsReceiptsArgs
 }
 
 /**
@@ -529,6 +1362,55 @@ export type OrganizationCountOutputTypeCountRestaurantsArgs<ExtArgs extends runt
   where?: Prisma.RestaurantWhereInput
 }
 
+/**
+ * OrganizationCountOutputType without action
+ */
+export type OrganizationCountOutputTypeCountProductCategoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductCategoryWhereInput
+}
+
+/**
+ * OrganizationCountOutputType without action
+ */
+export type OrganizationCountOutputTypeCountUnitsOfMeasureArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UnitOfMeasureWhereInput
+}
+
+/**
+ * OrganizationCountOutputType without action
+ */
+export type OrganizationCountOutputTypeCountSuppliersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SupplierWhereInput
+}
+
+/**
+ * OrganizationCountOutputType without action
+ */
+export type OrganizationCountOutputTypeCountInventoryBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.InventoryBalanceWhereInput
+}
+
+/**
+ * OrganizationCountOutputType without action
+ */
+export type OrganizationCountOutputTypeCountInventoryMovementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.InventoryMovementWhereInput
+}
+
+/**
+ * OrganizationCountOutputType without action
+ */
+export type OrganizationCountOutputTypeCountPurchaseOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PurchaseOrderWhereInput
+}
+
+/**
+ * OrganizationCountOutputType without action
+ */
+export type OrganizationCountOutputTypeCountGoodsReceiptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.GoodsReceiptWhereInput
+}
+
 
 export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -541,6 +1423,13 @@ export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   updatedAt?: boolean
   deletedAt?: boolean
   restaurants?: boolean | Prisma.Organization$restaurantsArgs<ExtArgs>
+  productCategories?: boolean | Prisma.Organization$productCategoriesArgs<ExtArgs>
+  unitsOfMeasure?: boolean | Prisma.Organization$unitsOfMeasureArgs<ExtArgs>
+  suppliers?: boolean | Prisma.Organization$suppliersArgs<ExtArgs>
+  inventoryBalances?: boolean | Prisma.Organization$inventoryBalancesArgs<ExtArgs>
+  inventoryMovements?: boolean | Prisma.Organization$inventoryMovementsArgs<ExtArgs>
+  purchaseOrders?: boolean | Prisma.Organization$purchaseOrdersArgs<ExtArgs>
+  goodsReceipts?: boolean | Prisma.Organization$goodsReceiptsArgs<ExtArgs>
   _count?: boolean | Prisma.OrganizationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["organization"]>
 
@@ -583,6 +1472,13 @@ export type OrganizationSelectScalar = {
 export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "status" | "timezone" | "currencyCode" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["organization"]>
 export type OrganizationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   restaurants?: boolean | Prisma.Organization$restaurantsArgs<ExtArgs>
+  productCategories?: boolean | Prisma.Organization$productCategoriesArgs<ExtArgs>
+  unitsOfMeasure?: boolean | Prisma.Organization$unitsOfMeasureArgs<ExtArgs>
+  suppliers?: boolean | Prisma.Organization$suppliersArgs<ExtArgs>
+  inventoryBalances?: boolean | Prisma.Organization$inventoryBalancesArgs<ExtArgs>
+  inventoryMovements?: boolean | Prisma.Organization$inventoryMovementsArgs<ExtArgs>
+  purchaseOrders?: boolean | Prisma.Organization$purchaseOrdersArgs<ExtArgs>
+  goodsReceipts?: boolean | Prisma.Organization$goodsReceiptsArgs<ExtArgs>
   _count?: boolean | Prisma.OrganizationCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type OrganizationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -592,6 +1488,13 @@ export type $OrganizationPayload<ExtArgs extends runtime.Types.Extensions.Intern
   name: "Organization"
   objects: {
     restaurants: Prisma.$RestaurantPayload<ExtArgs>[]
+    productCategories: Prisma.$ProductCategoryPayload<ExtArgs>[]
+    unitsOfMeasure: Prisma.$UnitOfMeasurePayload<ExtArgs>[]
+    suppliers: Prisma.$SupplierPayload<ExtArgs>[]
+    inventoryBalances: Prisma.$InventoryBalancePayload<ExtArgs>[]
+    inventoryMovements: Prisma.$InventoryMovementPayload<ExtArgs>[]
+    purchaseOrders: Prisma.$PurchaseOrderPayload<ExtArgs>[]
+    goodsReceipts: Prisma.$GoodsReceiptPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -998,6 +1901,13 @@ readonly fields: OrganizationFieldRefs;
 export interface Prisma__OrganizationClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   restaurants<T extends Prisma.Organization$restaurantsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$restaurantsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RestaurantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  productCategories<T extends Prisma.Organization$productCategoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$productCategoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  unitsOfMeasure<T extends Prisma.Organization$unitsOfMeasureArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$unitsOfMeasureArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UnitOfMeasurePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  suppliers<T extends Prisma.Organization$suppliersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$suppliersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SupplierPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  inventoryBalances<T extends Prisma.Organization$inventoryBalancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$inventoryBalancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryBalancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  inventoryMovements<T extends Prisma.Organization$inventoryMovementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$inventoryMovementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryMovementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  purchaseOrders<T extends Prisma.Organization$purchaseOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$purchaseOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PurchaseOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  goodsReceipts<T extends Prisma.Organization$goodsReceiptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$goodsReceiptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GoodsReceiptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1450,6 +2360,174 @@ export type Organization$restaurantsArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.RestaurantScalarFieldEnum | Prisma.RestaurantScalarFieldEnum[]
+}
+
+/**
+ * Organization.productCategories
+ */
+export type Organization$productCategoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductCategory
+   */
+  select?: Prisma.ProductCategorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductCategory
+   */
+  omit?: Prisma.ProductCategoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductCategoryInclude<ExtArgs> | null
+  where?: Prisma.ProductCategoryWhereInput
+  orderBy?: Prisma.ProductCategoryOrderByWithRelationInput | Prisma.ProductCategoryOrderByWithRelationInput[]
+  cursor?: Prisma.ProductCategoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductCategoryScalarFieldEnum | Prisma.ProductCategoryScalarFieldEnum[]
+}
+
+/**
+ * Organization.unitsOfMeasure
+ */
+export type Organization$unitsOfMeasureArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UnitOfMeasure
+   */
+  select?: Prisma.UnitOfMeasureSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UnitOfMeasure
+   */
+  omit?: Prisma.UnitOfMeasureOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UnitOfMeasureInclude<ExtArgs> | null
+  where?: Prisma.UnitOfMeasureWhereInput
+  orderBy?: Prisma.UnitOfMeasureOrderByWithRelationInput | Prisma.UnitOfMeasureOrderByWithRelationInput[]
+  cursor?: Prisma.UnitOfMeasureWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UnitOfMeasureScalarFieldEnum | Prisma.UnitOfMeasureScalarFieldEnum[]
+}
+
+/**
+ * Organization.suppliers
+ */
+export type Organization$suppliersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Supplier
+   */
+  select?: Prisma.SupplierSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Supplier
+   */
+  omit?: Prisma.SupplierOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SupplierInclude<ExtArgs> | null
+  where?: Prisma.SupplierWhereInput
+  orderBy?: Prisma.SupplierOrderByWithRelationInput | Prisma.SupplierOrderByWithRelationInput[]
+  cursor?: Prisma.SupplierWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SupplierScalarFieldEnum | Prisma.SupplierScalarFieldEnum[]
+}
+
+/**
+ * Organization.inventoryBalances
+ */
+export type Organization$inventoryBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the InventoryBalance
+   */
+  select?: Prisma.InventoryBalanceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the InventoryBalance
+   */
+  omit?: Prisma.InventoryBalanceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryBalanceInclude<ExtArgs> | null
+  where?: Prisma.InventoryBalanceWhereInput
+  orderBy?: Prisma.InventoryBalanceOrderByWithRelationInput | Prisma.InventoryBalanceOrderByWithRelationInput[]
+  cursor?: Prisma.InventoryBalanceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.InventoryBalanceScalarFieldEnum | Prisma.InventoryBalanceScalarFieldEnum[]
+}
+
+/**
+ * Organization.inventoryMovements
+ */
+export type Organization$inventoryMovementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the InventoryMovement
+   */
+  select?: Prisma.InventoryMovementSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the InventoryMovement
+   */
+  omit?: Prisma.InventoryMovementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryMovementInclude<ExtArgs> | null
+  where?: Prisma.InventoryMovementWhereInput
+  orderBy?: Prisma.InventoryMovementOrderByWithRelationInput | Prisma.InventoryMovementOrderByWithRelationInput[]
+  cursor?: Prisma.InventoryMovementWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.InventoryMovementScalarFieldEnum | Prisma.InventoryMovementScalarFieldEnum[]
+}
+
+/**
+ * Organization.purchaseOrders
+ */
+export type Organization$purchaseOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PurchaseOrder
+   */
+  select?: Prisma.PurchaseOrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PurchaseOrder
+   */
+  omit?: Prisma.PurchaseOrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PurchaseOrderInclude<ExtArgs> | null
+  where?: Prisma.PurchaseOrderWhereInput
+  orderBy?: Prisma.PurchaseOrderOrderByWithRelationInput | Prisma.PurchaseOrderOrderByWithRelationInput[]
+  cursor?: Prisma.PurchaseOrderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PurchaseOrderScalarFieldEnum | Prisma.PurchaseOrderScalarFieldEnum[]
+}
+
+/**
+ * Organization.goodsReceipts
+ */
+export type Organization$goodsReceiptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the GoodsReceipt
+   */
+  select?: Prisma.GoodsReceiptSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the GoodsReceipt
+   */
+  omit?: Prisma.GoodsReceiptOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.GoodsReceiptInclude<ExtArgs> | null
+  where?: Prisma.GoodsReceiptWhereInput
+  orderBy?: Prisma.GoodsReceiptOrderByWithRelationInput | Prisma.GoodsReceiptOrderByWithRelationInput[]
+  cursor?: Prisma.GoodsReceiptWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.GoodsReceiptScalarFieldEnum | Prisma.GoodsReceiptScalarFieldEnum[]
 }
 
 /**
