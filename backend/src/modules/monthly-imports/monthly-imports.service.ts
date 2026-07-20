@@ -1,0 +1,504 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { MonthlyImportStatus, Prisma } from '../../generated/prisma/client';
+import { PrismaService } from '../../database/prisma/prisma.service';
+import type {
+  MonthlyImportFiles,
+  ParsedMonthlyImport,
+} from './monthly-imports.types';
+import {
+  ProcessMonthlyImportDto,
+  QueryMonthlyImportsDto,
+} from './dto/monthly-import.dto';
+import { MonthlyImportsParser } from './monthly-imports.parser';
+
+@Injectable()
+export class MonthlyImportsService {
+  private readonly chunkSize = 1000;
+
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly parser: MonthlyImportsParser,
+  ) {}
+
+  async process(
+    organizationId: string,
+    dto: ProcessMonthlyImportDto,
+    files: MonthlyImportFiles,
+  ) {
+    const parsed = await this.parser.parseAll(files, dto.year, dto.month);
+
+    const counts = this.buildCounts(parsed);
+
+    const batch = await this.prismaService.withTenant(
+      organizationId,
+      async (transaction) => {
+        const latest = await transaction.monthlyImportBatch.aggregate({
+          where: {
+            organizationId,
+            periodYear: dto.year,
+            periodMonth: dto.month,
+          },
+          _max: {
+            version: true,
+          },
+        });
+
+        return transaction.monthlyImportBatch.create({
+          data: {
+            organizationId,
+            periodYear: dto.year,
+            periodMonth: dto.month,
+            version: (latest._max.version ?? 0) + 1,
+            sourceSystem: dto.sourceSystem ?? 'LEGACY_EXCEL',
+            status: MonthlyImportStatus.PROCESSING,
+            isCurrent: false,
+            ...counts,
+            summary: this.buildSummary(parsed) as Prisma.InputJsonValue,
+          },
+          select: {
+            id: true,
+          },
+        });
+      },
+    );
+
+    try {
+      await this.insertFiles(organizationId, batch.id, parsed);
+      await this.insertErrors(organizationId, batch.id, parsed);
+      await this.insertKardex(organizationId, batch.id, parsed);
+      await this.insertRecipes(organizationId, batch.id, parsed);
+      await this.insertSales(organizationId, batch.id, parsed);
+      await this.insertWaiterSales(organizationId, batch.id, parsed);
+
+      await this.prismaService.withTenant(
+        organizationId,
+        async (transaction) => {
+          await transaction.monthlyImportBatch.updateMany({
+            where: {
+              organizationId,
+              periodYear: dto.year,
+              periodMonth: dto.month,
+              isCurrent: true,
+              status: {
+                in: [
+                  MonthlyImportStatus.COMPLETED,
+                  MonthlyImportStatus.COMPLETED_WITH_ERRORS,
+                ],
+              },
+            },
+            data: {
+              isCurrent: false,
+              status: MonthlyImportStatus.REPLACED,
+            },
+          });
+
+          await transaction.monthlyImportBatch.update({
+            where: {
+              id: batch.id,
+            },
+            data: {
+              status:
+                counts.errorRows > 0
+                  ? MonthlyImportStatus.COMPLETED_WITH_ERRORS
+                  : MonthlyImportStatus.COMPLETED,
+              isCurrent: true,
+              completedAt: new Date(),
+            },
+          });
+        },
+      );
+    } catch (error: unknown) {
+      await this.prismaService.withTenant(organizationId, (transaction) =>
+        transaction.monthlyImportBatch.update({
+          where: {
+            id: batch.id,
+          },
+          data: {
+            status: MonthlyImportStatus.FAILED,
+            failureMessage:
+              error instanceof Error
+                ? error.message.slice(0, 1000)
+                : 'Error desconocido durante la importación.',
+            completedAt: new Date(),
+          },
+        }),
+      );
+
+      throw error;
+    }
+
+    return this.findOne(organizationId, batch.id);
+  }
+
+  async findAll(organizationId: string, query: QueryMonthlyImportsDto) {
+    const skip = (query.page - 1) * query.limit;
+
+    return this.prismaService.withTenant(
+      organizationId,
+      async (transaction) => {
+        const where: Prisma.MonthlyImportBatchWhereInput = {
+          organizationId,
+          ...(query.year ? { periodYear: query.year } : {}),
+          ...(query.month ? { periodMonth: query.month } : {}),
+        };
+
+        const [total, data] = await Promise.all([
+          transaction.monthlyImportBatch.count({ where }),
+          transaction.monthlyImportBatch.findMany({
+            where,
+            select: {
+              id: true,
+              periodYear: true,
+              periodMonth: true,
+              version: true,
+              isCurrent: true,
+              status: true,
+              sourceSystem: true,
+              totalRows: true,
+              validRows: true,
+              ignoredRows: true,
+              errorRows: true,
+              startedAt: true,
+              completedAt: true,
+              createdAt: true,
+            },
+            orderBy: [
+              { periodYear: 'desc' },
+              { periodMonth: 'desc' },
+              { version: 'desc' },
+            ],
+            skip,
+            take: query.limit,
+          }),
+        ]);
+
+        return {
+          data,
+          meta: {
+            page: query.page,
+            limit: query.limit,
+            total,
+            totalPages: total === 0 ? 0 : Math.ceil(total / query.limit),
+          },
+        };
+      },
+    );
+  }
+
+  async findOne(organizationId: string, id: string) {
+    return this.prismaService.withTenant(
+      organizationId,
+      async (transaction) => {
+        const batch = await transaction.monthlyImportBatch.findFirst({
+          where: {
+            id,
+            organizationId,
+          },
+          include: {
+            files: {
+              orderBy: {
+                type: 'asc',
+              },
+            },
+            errors: {
+              orderBy: [{ fileType: 'asc' }, { sourceRow: 'asc' }],
+              take: 200,
+            },
+          },
+        });
+
+        if (!batch) {
+          throw new NotFoundException('Monthly import batch not found.');
+        }
+
+        return batch;
+      },
+    );
+  }
+
+  async buildTextReport(organizationId: string, id: string) {
+    const batch = await this.prismaService.withTenant(
+      organizationId,
+      async (transaction) =>
+        transaction.monthlyImportBatch.findFirst({
+          where: {
+            id,
+            organizationId,
+          },
+          include: {
+            files: {
+              orderBy: {
+                type: 'asc',
+              },
+            },
+            errors: {
+              orderBy: [{ fileType: 'asc' }, { sourceRow: 'asc' }],
+              take: 5000,
+            },
+          },
+        }),
+    );
+
+    if (!batch) {
+      throw new NotFoundException(
+        'No se encontró la carga mensual solicitada.',
+      );
+    }
+
+    const filename = `reporte-carga-${batch.periodYear}-${String(
+      batch.periodMonth,
+    ).padStart(2, '0')}-v${batch.version}.txt`;
+    const lines: string[] = [
+      'PID - REPORTE DE CARGA MENSUAL',
+      '============================================================',
+      `Periodo: ${batch.periodYear}-${String(batch.periodMonth).padStart(2, '0')}`,
+      `Versión: ${batch.version}`,
+      `Estado: ${batch.status}`,
+      `Inicio: ${batch.startedAt.toISOString()}`,
+      `Finalización: ${batch.completedAt?.toISOString() ?? 'No finalizada'}`,
+      `Filas totales: ${batch.totalRows}`,
+      `Filas válidas: ${batch.validRows}`,
+      `Filas ignoradas: ${batch.ignoredRows}`,
+      `Filas con error: ${batch.errorRows}`,
+      '',
+    ];
+
+    if (batch.failureMessage) {
+      lines.push(`Fallo general: ${batch.failureMessage}`, '');
+    }
+
+    for (const file of batch.files) {
+      lines.push(
+        this.reportFileTitle(file.type),
+        '------------------------------------------------------------',
+        `Archivo: ${file.originalName}`,
+        `Hoja: ${file.sheetName}`,
+        `Filas totales: ${file.totalRows}`,
+        `Filas válidas: ${file.validRows}`,
+        `Filas ignoradas: ${file.ignoredRows}`,
+        `Filas con error: ${file.errorRows}`,
+        `Totales de control: ${JSON.stringify(file.controlTotals)}`,
+        '',
+      );
+    }
+
+    if (batch.errors.length > 0) {
+      lines.push(
+        'DETALLE DE ERRORES E IGNORADOS',
+        '============================================================',
+      );
+
+      for (const issue of batch.errors) {
+        lines.push(
+          `[${issue.fileType}] Fila ${issue.sourceRow}: ${issue.message}`,
+          `Datos: ${JSON.stringify(issue.rawData)}`,
+          '',
+        );
+      }
+    } else {
+      lines.push(
+        'DETALLE DE ERRORES E IGNORADOS',
+        '============================================================',
+        'No se registraron problemas de filas.',
+        '',
+      );
+    }
+
+    return {
+      filename,
+      content: lines.join('\r\n'),
+    };
+  }
+
+  private reportFileTitle(type: string): string {
+    const labels: Record<string, string> = {
+      KARDEX: 'KARDEX',
+      RECIPES: 'RECETAS',
+      SALES: 'VENTAS',
+      WAITER_SALES: 'VENTAS POR MESERO',
+    };
+
+    return labels[type] ?? type;
+  }
+
+  private async insertFiles(
+    organizationId: string,
+    batchId: string,
+    parsed: ParsedMonthlyImport,
+  ): Promise<void> {
+    const files = [
+      parsed.kardex,
+      parsed.recipes,
+      parsed.sales,
+      parsed.waiterSales,
+    ];
+
+    await this.prismaService.withTenant(organizationId, (transaction) =>
+      transaction.monthlyImportFile.createMany({
+        data: files.map((file) => ({
+          organizationId,
+          batchId,
+          type: file.type,
+          originalName: file.originalName,
+          sha256: file.sha256,
+          sheetName: file.sheetName,
+          totalRows: file.totalRows,
+          validRows: file.validRows,
+          ignoredRows: file.ignoredRows,
+          errorRows: file.errorRows,
+          controlTotals: file.controlTotals as Prisma.InputJsonValue,
+        })),
+      }),
+    );
+  }
+
+  private async insertErrors(
+    organizationId: string,
+    batchId: string,
+    parsed: ParsedMonthlyImport,
+  ): Promise<void> {
+    const issues = [
+      ...parsed.kardex.errors,
+      ...parsed.kardex.ignoredIssues,
+      ...parsed.recipes.errors,
+      ...parsed.recipes.ignoredIssues,
+      ...parsed.sales.errors,
+      ...parsed.sales.ignoredIssues,
+      ...parsed.waiterSales.errors,
+      ...parsed.waiterSales.ignoredIssues,
+    ];
+
+    for (const chunk of this.chunks(issues)) {
+      await this.prismaService.withTenant(organizationId, (transaction) =>
+        transaction.monthlyImportError.createMany({
+          data: chunk.map((error) => ({
+            organizationId,
+            batchId,
+            fileType: error.fileType,
+            sourceRow: error.sourceRow,
+            message:
+              error.kind === 'IGNORED'
+                ? `[IGNORADA] ${error.message}`
+                : error.message,
+            rawData: (error.rawData ?? {}) as Prisma.InputJsonValue,
+          })),
+        }),
+      );
+    }
+  }
+
+  private async insertKardex(
+    organizationId: string,
+    batchId: string,
+    parsed: ParsedMonthlyImport,
+  ): Promise<void> {
+    for (const chunk of this.chunks(parsed.kardex.rows)) {
+      await this.prismaService.withTenant(organizationId, (transaction) =>
+        transaction.historicalKardexEntry.createMany({
+          data: chunk.map((row) => ({
+            organizationId,
+            batchId,
+            ...row,
+          })),
+        }),
+      );
+    }
+  }
+
+  private async insertRecipes(
+    organizationId: string,
+    batchId: string,
+    parsed: ParsedMonthlyImport,
+  ): Promise<void> {
+    for (const chunk of this.chunks(parsed.recipes.rows)) {
+      await this.prismaService.withTenant(organizationId, (transaction) =>
+        transaction.recipeComponentSnapshot.createMany({
+          data: chunk.map((row) => ({
+            organizationId,
+            batchId,
+            ...row,
+          })),
+        }),
+      );
+    }
+  }
+
+  private async insertSales(
+    organizationId: string,
+    batchId: string,
+    parsed: ParsedMonthlyImport,
+  ): Promise<void> {
+    for (const chunk of this.chunks(parsed.sales.rows)) {
+      await this.prismaService.withTenant(organizationId, (transaction) =>
+        transaction.salesLine.createMany({
+          data: chunk.map((row) => ({
+            organizationId,
+            batchId,
+            ...row,
+          })),
+        }),
+      );
+    }
+  }
+
+  private async insertWaiterSales(
+    organizationId: string,
+    batchId: string,
+    parsed: ParsedMonthlyImport,
+  ): Promise<void> {
+    for (const chunk of this.chunks(parsed.waiterSales.rows)) {
+      await this.prismaService.withTenant(organizationId, (transaction) =>
+        transaction.waiterSalesLine.createMany({
+          data: chunk.map((row) => ({
+            organizationId,
+            batchId,
+            ...row,
+          })),
+        }),
+      );
+    }
+  }
+
+  private chunks<T>(rows: T[]): T[][] {
+    const chunks: T[][] = [];
+
+    for (let index = 0; index < rows.length; index += this.chunkSize) {
+      chunks.push(rows.slice(index, index + this.chunkSize));
+    }
+
+    return chunks;
+  }
+
+  private buildCounts(parsed: ParsedMonthlyImport) {
+    const files = [
+      parsed.kardex,
+      parsed.recipes,
+      parsed.sales,
+      parsed.waiterSales,
+    ];
+
+    return {
+      totalRows: files.reduce((total, file) => total + file.totalRows, 0),
+      validRows: files.reduce((total, file) => total + file.validRows, 0),
+      ignoredRows: files.reduce((total, file) => total + file.ignoredRows, 0),
+      errorRows: files.reduce((total, file) => total + file.errorRows, 0),
+    };
+  }
+
+  private buildSummary(parsed: ParsedMonthlyImport): Record<string, unknown> {
+    return {
+      controls: {
+        kardex: parsed.kardex.controlTotals,
+        recipes: parsed.recipes.controlTotals,
+        sales: parsed.sales.controlTotals,
+        waiterSales: parsed.waiterSales.controlTotals,
+      },
+      files: {
+        kardex: parsed.kardex.originalName,
+        recipes: parsed.recipes.originalName,
+        sales: parsed.sales.originalName,
+        waiterSales: parsed.waiterSales.originalName,
+      },
+    };
+  }
+}

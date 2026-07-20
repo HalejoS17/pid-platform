@@ -50,6 +50,27 @@ export const ProductType = {
 export type ProductType = (typeof ProductType)[keyof typeof ProductType]
 
 
+export const MonthlyImportStatus = {
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  COMPLETED_WITH_ERRORS: 'COMPLETED_WITH_ERRORS',
+  FAILED: 'FAILED',
+  REPLACED: 'REPLACED'
+} as const
+
+export type MonthlyImportStatus = (typeof MonthlyImportStatus)[keyof typeof MonthlyImportStatus]
+
+
+export const MonthlyImportFileType = {
+  KARDEX: 'KARDEX',
+  RECIPES: 'RECIPES',
+  SALES: 'SALES',
+  WAITER_SALES: 'WAITER_SALES'
+} as const
+
+export type MonthlyImportFileType = (typeof MonthlyImportFileType)[keyof typeof MonthlyImportFileType]
+
+
 export const InventoryMovementType = {
   OPENING_BALANCE: 'OPENING_BALANCE',
   PURCHASE_RECEIPT: 'PURCHASE_RECEIPT',

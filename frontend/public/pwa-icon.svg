@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="110" fill="#0C1D63"/>
+  <circle cx="256" cy="256" r="180" fill="#2570B8"/>
+  <text
+    x="256"
+    y="292"
+    text-anchor="middle"
+    font-family="Arial, sans-serif"
+    font-size="128"
+    font-weight="700"
+    fill="#ffffff"
+  >PID</text>
+  <circle cx="384" cy="384" r="52" fill="#FF2402"/>
+</svg>

@@ -1,0 +1,827 @@
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { createHash } from 'node:crypto';
+import { PassThrough } from 'node:stream';
+import ExcelJS from 'exceljs';
+import type { Express } from 'express';
+import type {
+  ImportRowIssue,
+  MonthlyImportFiles,
+  ParsedFile,
+  ParsedKardexRow,
+  ParsedMonthlyImport,
+  ParsedRecipeRow,
+  ParsedSalesRow,
+  ParsedWaiterSalesRow,
+} from './monthly-imports.types';
+
+const DAY_MILLISECONDS = 86_400_000;
+
+@Injectable()
+export class MonthlyImportsParser {
+  async parseAll(
+    files: MonthlyImportFiles,
+    year: number,
+    month: number,
+  ): Promise<ParsedMonthlyImport> {
+    const kardex = this.getRequiredFile(files.kardex, 'kardex');
+    const recipes = this.getRequiredFile(files.recipes, 'recipes');
+    const sales = this.getRequiredFile(files.sales, 'sales');
+    const waiterSales = this.getRequiredFile(files.waiterSales, 'waiterSales');
+
+    this.assertExcelFile(kardex);
+    this.assertExcelFile(recipes);
+    this.assertExcelFile(sales);
+    this.assertExcelFile(waiterSales);
+
+    const [parsedKardex, parsedRecipes, parsedSales, parsedWaiterSales] =
+      await Promise.all([
+        this.parseKardex(kardex, year, month),
+        this.parseRecipes(recipes),
+        this.parseSales(sales, year, month),
+        this.parseWaiterSales(waiterSales),
+      ]);
+
+    return {
+      kardex: parsedKardex,
+      recipes: parsedRecipes,
+      sales: parsedSales,
+      waiterSales: parsedWaiterSales,
+    };
+  }
+
+  private async parseKardex(
+    file: Express.Multer.File,
+    year: number,
+    month: number,
+  ): Promise<ParsedFile<ParsedKardexRow>> {
+    const workbook = await this.loadWorkbook(file);
+    const worksheet = this.findWorksheet(workbook, [
+      'INSUMO',
+      'FECHA',
+      'BODEGA',
+      'TRANS',
+      'DOC NO',
+    ]);
+
+    const rows: ParsedKardexRow[] = [];
+    const errors: ImportRowIssue[] = [];
+    const ignoredIssues: ImportRowIssue[] = [];
+    let ignoredRows = 0;
+
+    const totals = {
+      quantityIn: 0,
+      totalIn: 0,
+      quantityOut: 0,
+      totalOut: 0,
+    };
+
+    for (let rowNumber = 4; rowNumber <= worksheet.rowCount; rowNumber += 1) {
+      const row = worksheet.getRow(rowNumber);
+      const itemName = this.text(row.getCell(1).value);
+      const rawDate = row.getCell(2).value;
+
+      if (!itemName || this.isEmpty(rawDate)) {
+        ignoredRows += 1;
+        continue;
+      }
+
+      try {
+        const movementDate = this.date(rawDate);
+
+        if (
+          movementDate.getUTCFullYear() !== year ||
+          movementDate.getUTCMonth() + 1 !== month
+        ) {
+          throw new Error(
+            `La fecha ${movementDate.toISOString()} no pertenece al periodo ${year}-${String(
+              month,
+            ).padStart(2, '0')}.`,
+          );
+        }
+
+        const quantityIn = this.number(row.getCell(9).value);
+        const unitCostIn = this.number(row.getCell(10).value);
+        const totalIn = this.number(row.getCell(11).value);
+        const quantityOut = this.number(row.getCell(12).value);
+        const unitCostOut = this.number(row.getCell(13).value);
+        const totalOut = this.number(row.getCell(14).value);
+
+        totals.quantityIn += quantityIn;
+        totals.totalIn += totalIn;
+        totals.quantityOut += quantityOut;
+        totals.totalOut += totalOut;
+
+        const unitOriginal = this.nullableText(row.getCell(8).value);
+
+        rows.push({
+          sourceRow: rowNumber,
+          itemName,
+          itemNormalized: this.normalize(itemName),
+          movementDate,
+          warehouseCode: this.text(row.getCell(3).value) || 'SIN_BODEGA',
+          transactionType: this.text(row.getCell(4).value) || 'SIN_TRANSACCION',
+          documentNumber: this.nullableText(row.getCell(5).value),
+          sourceBranch: this.nullableText(row.getCell(6).value),
+          destinationBranch: this.nullableText(row.getCell(7).value),
+          unitOriginal,
+          unitCode: this.normalizeUnit(unitOriginal),
+          quantityIn,
+          unitCostIn,
+          totalIn,
+          quantityOut,
+          unitCostOut,
+          totalOut,
+          balanceQuantity: this.number(row.getCell(15).value),
+          balanceTotalCost: this.number(row.getCell(16).value),
+          averageCost: this.number(row.getCell(17).value),
+          supplierName: this.cleanSupplier(row.getCell(18).value),
+        });
+      } catch (error: unknown) {
+        errors.push(
+          this.rowError('KARDEX', rowNumber, error, this.rowPreview(row, 18)),
+        );
+      }
+    }
+
+    return this.fileResult(
+      'KARDEX',
+      file,
+      worksheet.name,
+      worksheet.rowCount - 3,
+      ignoredRows,
+      rows,
+      errors,
+      ignoredIssues,
+      {
+        ...this.roundControlTotals(totals),
+        detectedStartDate:
+          rows.length > 0
+            ? new Date(
+                Math.min(...rows.map((item) => item.movementDate.getTime())),
+              ).toISOString()
+            : null,
+        detectedEndDate:
+          rows.length > 0
+            ? new Date(
+                Math.max(...rows.map((item) => item.movementDate.getTime())),
+              ).toISOString()
+            : null,
+        uniqueItems: new Set(rows.map((item) => item.itemNormalized)).size,
+        warehouses: [...new Set(rows.map((item) => item.warehouseCode))],
+      },
+    );
+  }
+
+  private async parseRecipes(
+    file: Express.Multer.File,
+  ): Promise<ParsedFile<ParsedRecipeRow>> {
+    const workbook = await this.loadWorkbook(file);
+    const worksheet = this.findWorksheet(workbook, [
+      'ARTICULO',
+      'GRUPO 1',
+      'INSUMO',
+      'UNIDAD',
+      'CANT',
+    ]);
+
+    const rows: ParsedRecipeRow[] = [];
+    const errors: ImportRowIssue[] = [];
+    const ignoredIssues: ImportRowIssue[] = [];
+    let ignoredRows = 0;
+    let totalRecipeCost = 0;
+
+    for (let rowNumber = 4; rowNumber <= worksheet.rowCount; rowNumber += 1) {
+      const row = worksheet.getRow(rowNumber);
+      const articleName = this.text(row.getCell(1).value);
+      const ingredientName = this.text(row.getCell(3).value);
+
+      if (
+        !articleName ||
+        !ingredientName ||
+        this.normalize(ingredientName) === 'NINGUNO'
+      ) {
+        ignoredRows += 1;
+        continue;
+      }
+
+      try {
+        const totalCost = this.number(row.getCell(7).value);
+        const costWithWaste = this.number(row.getCell(10).value);
+        const finalCost = this.number(row.getCell(12).value);
+        const componentCost =
+          finalCost > 0
+            ? finalCost
+            : costWithWaste > 0
+              ? costWithWaste
+              : totalCost;
+
+        totalRecipeCost += componentCost;
+        const unitOriginal = this.nullableText(row.getCell(4).value);
+
+        rows.push({
+          sourceRow: rowNumber,
+          articleName,
+          articleNormalized: this.normalize(articleName),
+          groupName: this.nullableText(row.getCell(2).value),
+          ingredientName,
+          ingredientNormalized: this.normalize(ingredientName),
+          unitOriginal,
+          unitCode: this.normalizeUnit(unitOriginal),
+          quantity: this.number(row.getCell(5).value),
+          unitCost: this.number(row.getCell(6).value),
+          totalCost,
+          wasteFactor: this.number(row.getCell(8).value),
+          grossQuantity: this.number(row.getCell(9).value),
+          costWithWaste,
+          recoveryFactor: this.number(row.getCell(11).value),
+          finalCost,
+        });
+      } catch (error: unknown) {
+        errors.push(
+          this.rowError('RECIPES', rowNumber, error, this.rowPreview(row, 12)),
+        );
+      }
+    }
+
+    return this.fileResult(
+      'RECIPES',
+      file,
+      worksheet.name,
+      worksheet.rowCount - 3,
+      ignoredRows,
+      rows,
+      errors,
+      ignoredIssues,
+      {
+        totalRecipeComponentCost: this.round(totalRecipeCost),
+        uniqueArticles: new Set(rows.map((item) => item.articleNormalized))
+          .size,
+        uniqueIngredients: new Set(
+          rows.map((item) => item.ingredientNormalized),
+        ).size,
+        duplicateSheetsIgnored: Math.max(0, workbook.worksheets.length - 1),
+      },
+    );
+  }
+
+  private async parseSales(
+    file: Express.Multer.File,
+    year: number,
+    month: number,
+  ): Promise<ParsedFile<ParsedSalesRow>> {
+    const workbook = await this.loadWorkbook(file);
+    const worksheet = this.findWorksheet(workbook, [
+      'GRUPO 1',
+      'GRUPO 2',
+      'FECHA',
+      'NUM DOC',
+      'ARTICULO',
+      'CANT',
+      'SERVICIO',
+      'TOTAL',
+    ]);
+
+    const rows: ParsedSalesRow[] = [];
+    const errors: ImportRowIssue[] = [];
+    const ignoredIssues: ImportRowIssue[] = [];
+    let ignoredRows = 0;
+
+    const totals = {
+      quantity: 0,
+      subtotal: 0,
+      taxAmount: 0,
+      serviceAmount: 0,
+      totalAmount: 0,
+    };
+
+    for (let rowNumber = 4; rowNumber <= worksheet.rowCount; rowNumber += 1) {
+      const row = worksheet.getRow(rowNumber);
+      const rawDate = row.getCell(3).value;
+      const documentNumber = this.text(row.getCell(4).value);
+      const articleName = this.text(row.getCell(5).value);
+
+      if (this.isEmpty(rawDate) || !documentNumber || !articleName) {
+        ignoredRows += 1;
+        continue;
+      }
+
+      try {
+        const saleDate = this.date(rawDate);
+
+        if (
+          saleDate.getUTCFullYear() !== year ||
+          saleDate.getUTCMonth() + 1 !== month
+        ) {
+          throw new Error(
+            `La fecha ${saleDate.toISOString()} no pertenece al periodo seleccionado.`,
+          );
+        }
+
+        const quantity = this.number(row.getCell(6).value);
+        const subtotal = this.number(row.getCell(10).value);
+        const taxAmount = this.number(row.getCell(16).value);
+        const serviceAmount = this.number(row.getCell(17).value);
+        const totalAmount = this.number(row.getCell(18).value);
+
+        totals.quantity += quantity;
+        totals.subtotal += subtotal;
+        totals.taxAmount += taxAmount;
+        totals.serviceAmount += serviceAmount;
+        totals.totalAmount += totalAmount;
+
+        rows.push({
+          sourceRow: rowNumber,
+          groupName: this.nullableText(row.getCell(1).value),
+          subgroupName: this.nullableText(row.getCell(2).value),
+          saleDate,
+          documentNumber,
+          articleName,
+          articleNormalized: this.normalize(articleName),
+          quantity,
+          unitPrice: this.number(row.getCell(7).value),
+          discountPercent: this.number(row.getCell(8).value),
+          taxRate: this.number(row.getCell(9).value),
+          subtotal,
+          subtotalZeroDiscount: this.number(row.getCell(11).value),
+          subtotalZero: this.number(row.getCell(12).value),
+          subtotalTaxed: this.number(row.getCell(13).value),
+          footerDiscount: this.number(row.getCell(14).value),
+          taxableSubtotalAfterDiscount: this.number(row.getCell(15).value),
+          taxAmount,
+          serviceAmount,
+          totalAmount,
+        });
+      } catch (error: unknown) {
+        errors.push(
+          this.rowError('SALES', rowNumber, error, this.rowPreview(row, 18)),
+        );
+      }
+    }
+
+    return this.fileResult(
+      'SALES',
+      file,
+      worksheet.name,
+      worksheet.rowCount - 3,
+      ignoredRows,
+      rows,
+      errors,
+      ignoredIssues,
+      {
+        ...this.roundControlTotals(totals),
+        uniqueDocuments: new Set(rows.map((item) => item.documentNumber)).size,
+        uniqueArticles: new Set(rows.map((item) => item.articleNormalized))
+          .size,
+        duplicateSheetsIgnored: Math.max(0, workbook.worksheets.length - 1),
+      },
+    );
+  }
+
+  private async parseWaiterSales(
+    file: Express.Multer.File,
+  ): Promise<ParsedFile<ParsedWaiterSalesRow>> {
+    const workbook = await this.loadWorkbook(file);
+    const worksheet = this.findWorksheet(workbook, [
+      'MESERO',
+      'GRUPO',
+      'SUB GRUPO',
+      'ITEM',
+      'CANT',
+      'TOTAL',
+    ]);
+
+    const rows: ParsedWaiterSalesRow[] = [];
+    const errors: ImportRowIssue[] = [];
+    const ignoredIssues: ImportRowIssue[] = [];
+    let ignoredRows = 0;
+
+    const totals = {
+      quantity: 0,
+      subtotal: 0,
+      discount: 0,
+      totalAmount: 0,
+    };
+
+    for (let rowNumber = 4; rowNumber <= worksheet.rowCount; rowNumber += 1) {
+      const row = worksheet.getRow(rowNumber);
+      const waiterName = this.text(row.getCell(1).value);
+      const articleName = this.text(row.getCell(4).value);
+
+      if (!waiterName || !articleName) {
+        ignoredRows += 1;
+        continue;
+      }
+
+      try {
+        const quantity = this.number(row.getCell(5).value);
+        const subtotal = this.number(row.getCell(7).value);
+        const discount = this.number(row.getCell(8).value);
+        const totalAmount = this.number(row.getCell(9).value);
+
+        totals.quantity += quantity;
+        totals.subtotal += subtotal;
+        totals.discount += discount;
+        totals.totalAmount += totalAmount;
+
+        rows.push({
+          sourceRow: rowNumber,
+          waiterName,
+          waiterNormalized: this.normalize(waiterName),
+          groupName: this.nullableText(row.getCell(2).value),
+          subgroupName: this.nullableText(row.getCell(3).value),
+          articleName,
+          articleNormalized: this.normalize(articleName),
+          quantity,
+          unitValue: this.number(row.getCell(6).value),
+          subtotal,
+          discount,
+          totalAmount,
+        });
+      } catch (error: unknown) {
+        errors.push(
+          this.rowError(
+            'WAITER_SALES',
+            rowNumber,
+            error,
+            this.rowPreview(row, 9),
+          ),
+        );
+      }
+    }
+
+    return this.fileResult(
+      'WAITER_SALES',
+      file,
+      worksheet.name,
+      worksheet.rowCount - 3,
+      ignoredRows,
+      rows,
+      errors,
+      ignoredIssues,
+      {
+        ...this.roundControlTotals(totals),
+        uniqueWaiters: new Set(rows.map((item) => item.waiterNormalized)).size,
+        uniqueArticles: new Set(rows.map((item) => item.articleNormalized))
+          .size,
+      },
+    );
+  }
+
+  private async loadWorkbook(
+    file: Express.Multer.File,
+  ): Promise<ExcelJS.Workbook> {
+    const workbook = new ExcelJS.Workbook();
+
+    const inputStream = new PassThrough();
+
+    inputStream.end(file.buffer);
+
+    await workbook.xlsx.read(inputStream);
+
+    return workbook;
+  }
+
+  private findWorksheet(
+    workbook: ExcelJS.Workbook,
+    expectedHeaders: string[],
+  ): ExcelJS.Worksheet {
+    for (const worksheet of workbook.worksheets) {
+      const headerRow = worksheet.getRow(3);
+
+      const headers = Array.from(
+        {
+          length: worksheet.columnCount,
+        },
+        (_, index) => this.normalize(headerRow.getCell(index + 1).value),
+      );
+
+      const matches = expectedHeaders.every((expected) => {
+        const normalizedExpected = this.normalize(expected);
+
+        return headers.some((header) => header.includes(normalizedExpected));
+      });
+
+      if (matches) {
+        return worksheet;
+      }
+    }
+
+    throw new BadRequestException(
+      `No se encontr? una hoja con los encabezados esperados: ${expectedHeaders.join(
+        ', ',
+      )}.`,
+    );
+  }
+
+  private fileResult<T>(
+    type: ParsedFile<T>['type'],
+    file: Express.Multer.File,
+    sheetName: string,
+    totalRows: number,
+    ignoredRows: number,
+    rows: T[],
+    errors: ImportRowIssue[],
+    ignoredIssues: ImportRowIssue[],
+    controlTotals: Record<string, unknown>,
+  ): ParsedFile<T> {
+    return {
+      type,
+
+      originalName: file.originalname,
+
+      sha256: createHash('sha256').update(file.buffer).digest('hex'),
+
+      sheetName,
+      totalRows,
+
+      validRows: rows.length,
+
+      ignoredRows,
+
+      errorRows: errors.length,
+
+      controlTotals,
+      rows,
+      errors,
+      ignoredIssues,
+    };
+  }
+
+  private getRequiredFile(
+    files: Express.Multer.File[] | undefined,
+    fieldName: string,
+  ): Express.Multer.File {
+    const file = files?.[0];
+
+    if (!file) {
+      throw new BadRequestException(`Falta el archivo ${fieldName}.`);
+    }
+
+    return file;
+  }
+
+  private assertExcelFile(file: Express.Multer.File): void {
+    if (!file.originalname.toLowerCase().endsWith('.xlsx')) {
+      throw new BadRequestException(
+        `El archivo ${file.originalname} debe tener extensiÃ³n .xlsx.`,
+      );
+    }
+  }
+
+  private unwrap(value: unknown): unknown {
+    if (value && typeof value === 'object' && !(value instanceof Date)) {
+      if ('result' in value) {
+        return (value as { result?: unknown }).result;
+      }
+
+      if ('richText' in value) {
+        return (value as { richText?: Array<{ text?: string }> }).richText
+          ?.map((part) => part.text ?? '')
+          .join('');
+      }
+
+      if ('text' in value) {
+        return (value as { text?: unknown }).text;
+      }
+    }
+
+    return value;
+  }
+
+  private text(value: unknown): string {
+    const unwrapped = this.unwrap(value);
+
+    if (unwrapped === null || unwrapped === undefined) {
+      return '';
+    }
+
+    if (typeof unwrapped === 'string') {
+      return unwrapped.replace(/\s+/g, ' ').trim();
+    }
+
+    if (
+      typeof unwrapped === 'number' ||
+      typeof unwrapped === 'boolean' ||
+      typeof unwrapped === 'bigint'
+    ) {
+      return `${unwrapped}`.replace(/\s+/g, ' ').trim();
+    }
+
+    if (unwrapped instanceof Date) {
+      return unwrapped.toISOString();
+    }
+
+    return '';
+  }
+
+  private nullableText(value: unknown): string | null {
+    const result = this.text(value);
+    return result === '' ? null : result;
+  }
+
+  private cleanSupplier(value: unknown): string | null {
+    const result = this.text(value);
+
+    if (
+      result === '' ||
+      result === '.' ||
+      result === '. .' ||
+      result === '..'
+    ) {
+      return null;
+    }
+
+    return result;
+  }
+
+  private normalize(value: unknown): string {
+    return this.text(value)
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .toUpperCase()
+      .replace(/[^A-Z0-9]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  private normalizeUnit(value: string | null): string {
+    const normalized = this.normalize(value ?? '');
+
+    const aliases: Record<string, string> = {
+      KG: 'KG',
+      KILO: 'KG',
+      KILOS: 'KG',
+      KL: 'KG',
+      UNIDAD: 'UNIT',
+      UNID: 'UNIT',
+      UND: 'UNIT',
+      ML: 'ML',
+      MILILITRO: 'ML',
+      MILILITROS: 'ML',
+      L: 'L',
+      LITRO: 'L',
+      LITROS: 'L',
+      ATADO: 'BUNDLE',
+      NINGUNO: 'NONE',
+    };
+
+    return aliases[normalized] ?? (normalized || 'OTHER');
+  }
+
+  private number(value: unknown): number {
+    const unwrapped = this.unwrap(value);
+
+    if (unwrapped === null || unwrapped === undefined || unwrapped === '') {
+      return 0;
+    }
+
+    if (typeof unwrapped === 'number') {
+      return Number.isFinite(unwrapped) ? unwrapped : 0;
+    }
+
+    if (typeof unwrapped === 'bigint') {
+      const result = Number(unwrapped);
+
+      if (!Number.isFinite(result)) {
+        throw new Error('El n?mero excede el rango admitido.');
+      }
+
+      return result;
+    }
+
+    if (typeof unwrapped === 'boolean') {
+      return unwrapped ? 1 : 0;
+    }
+
+    if (typeof unwrapped !== 'string') {
+      throw new Error('La celda no contiene un n?mero v?lido.');
+    }
+
+    const text = unwrapped.trim();
+
+    if (text === '') {
+      return 0;
+    }
+
+    const normalized =
+      text.includes(',') && !text.includes('.')
+        ? text.replace(',', '.')
+        : text.replace(/,/g, '');
+
+    const result = Number(normalized);
+
+    if (!Number.isFinite(result)) {
+      throw new Error(`No se pudo convertir "${text}" a n?mero.`);
+    }
+
+    return result;
+  }
+
+  private date(value: unknown): Date {
+    const unwrapped = this.unwrap(value);
+
+    if (unwrapped instanceof Date) {
+      return new Date(unwrapped.getTime());
+    }
+
+    if (typeof unwrapped === 'number') {
+      return new Date(Date.UTC(1899, 11, 30) + unwrapped * DAY_MILLISECONDS);
+    }
+
+    const text = this.text(unwrapped);
+
+    if (/^\d+(?:\.\d+)?$/.test(text)) {
+      return new Date(Date.UTC(1899, 11, 30) + Number(text) * DAY_MILLISECONDS);
+    }
+
+    const dmy = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+
+    if (dmy) {
+      return new Date(
+        Date.UTC(Number(dmy[3]), Number(dmy[2]) - 1, Number(dmy[1])),
+      );
+    }
+
+    const parsed = new Date(text);
+
+    if (Number.isNaN(parsed.getTime())) {
+      throw new Error(`No se pudo convertir "${text}" a fecha.`);
+    }
+
+    return parsed;
+  }
+
+  private isEmpty(value: unknown): boolean {
+    return this.text(value) === '';
+  }
+
+  private rowPreview(
+    row: ExcelJS.Row,
+    maxColumns: number,
+  ): Record<string, unknown> {
+    const preview: Record<string, unknown> = {};
+
+    for (let column = 1; column <= maxColumns; column += 1) {
+      preview[`c${column}`] = this.text(row.getCell(column).value);
+    }
+
+    return preview;
+  }
+
+  private rowError(
+    fileType: ImportRowIssue['fileType'],
+    sourceRow: number,
+    error: unknown,
+    rawData: Record<string, unknown>,
+  ): ImportRowIssue {
+    let message = 'Error de lectura no identificado.';
+
+    if (error instanceof Error) {
+      message = error.message;
+    } else if (typeof error === 'string') {
+      message = error;
+    } else if (
+      error !== null &&
+      typeof error === 'object' &&
+      'message' in error &&
+      typeof error.message === 'string'
+    ) {
+      message = error.message;
+    }
+
+    return {
+      kind: 'ERROR',
+      fileType,
+      sourceRow,
+      message,
+      rawData,
+    };
+  }
+
+  private ignoredRow(
+    fileType: ImportRowIssue['fileType'],
+    sourceRow: number,
+    message: string,
+    rawData: Record<string, unknown>,
+  ): ImportRowIssue {
+    return {
+      kind: 'IGNORED',
+      fileType,
+      sourceRow,
+      message,
+      rawData,
+    };
+  }
+
+  private round(value: number): number {
+    return Number(value.toFixed(6));
+  }
+
+  private roundControlTotals(
+    totals: Record<string, number>,
+  ): Record<string, number> {
+    return Object.fromEntries(
+      Object.entries(totals).map(([key, value]) => [key, this.round(value)]),
+    );
+  }
+}

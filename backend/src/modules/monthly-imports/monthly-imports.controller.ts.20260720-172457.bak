@@ -1,0 +1,123 @@
+import {
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Query,
+  UploadedFiles,
+  UseGuards,
+  UseInterceptors,
+  Body,
+} from '@nestjs/common';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
+import { CurrentOrganizationId } from '../../common/decorators/current-organization-id.decorator';
+import { OrganizationContextGuard } from '../../common/guards/organization-context.guard';
+import {
+  QueryHistoricalInventoryDto,
+  QueryHistoricalKardexDto,
+} from './dto/historical-import-data.dto';
+import {
+  ProcessMonthlyImportDto,
+  QueryMonthlyAnalyticsDto,
+  QueryMonthlyImportsDto,
+} from './dto/monthly-import.dto';
+import { HistoricalImportDataService } from './historical-import-data.service';
+import { MonthlyAnalyticsService } from './monthly-analytics.service';
+import type { MonthlyImportFiles } from './monthly-imports.types';
+import { MonthlyImportsService } from './monthly-imports.service';
+
+@UseGuards(OrganizationContextGuard)
+@Controller('monthly-imports')
+export class MonthlyImportsController {
+  constructor(
+    private readonly monthlyImportsService: MonthlyImportsService,
+    private readonly analyticsService: MonthlyAnalyticsService,
+    private readonly historicalImportDataService: HistoricalImportDataService,
+  ) {}
+
+  @Post('process')
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: 'kardex', maxCount: 1 },
+        { name: 'recipes', maxCount: 1 },
+        { name: 'sales', maxCount: 1 },
+        { name: 'waiterSales', maxCount: 1 },
+      ],
+      {
+        storage: memoryStorage(),
+        limits: {
+          files: 4,
+          fileSize: 15 * 1024 * 1024,
+        },
+      },
+    ),
+  )
+  process(
+    @CurrentOrganizationId()
+    organizationId: string,
+    @Body()
+    dto: ProcessMonthlyImportDto,
+    @UploadedFiles()
+    files: MonthlyImportFiles,
+  ) {
+    return this.monthlyImportsService.process(organizationId, dto, files);
+  }
+
+  @Get()
+  findAll(
+    @CurrentOrganizationId()
+    organizationId: string,
+    @Query()
+    query: QueryMonthlyImportsDto,
+  ) {
+    return this.monthlyImportsService.findAll(organizationId, query);
+  }
+
+  @Get('analytics')
+  analytics(
+    @CurrentOrganizationId()
+    organizationId: string,
+    @Query()
+    query: QueryMonthlyAnalyticsDto,
+  ) {
+    return this.analyticsService.getDashboard(organizationId, query);
+  }
+
+  @Get('inventory')
+  historicalInventory(
+    @CurrentOrganizationId()
+    organizationId: string,
+    @Query()
+    query: QueryHistoricalInventoryDto,
+  ) {
+    return this.historicalImportDataService.getInventory(organizationId, query);
+  }
+
+  @Get('kardex')
+  historicalKardex(
+    @CurrentOrganizationId()
+    organizationId: string,
+    @Query()
+    query: QueryHistoricalKardexDto,
+  ) {
+    return this.historicalImportDataService.getKardex(organizationId, query);
+  }
+
+  @Get(':id')
+  findOne(
+    @CurrentOrganizationId()
+    organizationId: string,
+    @Param(
+      'id',
+      new ParseUUIDPipe({
+        version: '4',
+      }),
+    )
+    id: string,
+  ) {
+    return this.monthlyImportsService.findOne(organizationId, id);
+  }
+}

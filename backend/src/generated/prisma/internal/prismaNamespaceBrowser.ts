@@ -62,6 +62,13 @@ export const ModelName = {
   Supplier: 'Supplier',
   SupplierProduct: 'SupplierProduct',
   SupplierProductCost: 'SupplierProductCost',
+  MonthlyImportBatch: 'MonthlyImportBatch',
+  MonthlyImportFile: 'MonthlyImportFile',
+  MonthlyImportError: 'MonthlyImportError',
+  HistoricalKardexEntry: 'HistoricalKardexEntry',
+  RecipeComponentSnapshot: 'RecipeComponentSnapshot',
+  SalesLine: 'SalesLine',
+  WaiterSalesLine: 'WaiterSalesLine',
   InventoryBalance: 'InventoryBalance',
   InventoryMovement: 'InventoryMovement',
   PurchaseOrder: 'PurchaseOrder',
@@ -278,6 +285,172 @@ export const SupplierProductCostScalarFieldEnum = {
 export type SupplierProductCostScalarFieldEnum = (typeof SupplierProductCostScalarFieldEnum)[keyof typeof SupplierProductCostScalarFieldEnum]
 
 
+export const MonthlyImportBatchScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  periodYear: 'periodYear',
+  periodMonth: 'periodMonth',
+  version: 'version',
+  isCurrent: 'isCurrent',
+  status: 'status',
+  sourceSystem: 'sourceSystem',
+  totalRows: 'totalRows',
+  validRows: 'validRows',
+  ignoredRows: 'ignoredRows',
+  errorRows: 'errorRows',
+  summary: 'summary',
+  failureMessage: 'failureMessage',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MonthlyImportBatchScalarFieldEnum = (typeof MonthlyImportBatchScalarFieldEnum)[keyof typeof MonthlyImportBatchScalarFieldEnum]
+
+
+export const MonthlyImportFileScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  batchId: 'batchId',
+  type: 'type',
+  originalName: 'originalName',
+  sha256: 'sha256',
+  sheetName: 'sheetName',
+  totalRows: 'totalRows',
+  validRows: 'validRows',
+  ignoredRows: 'ignoredRows',
+  errorRows: 'errorRows',
+  controlTotals: 'controlTotals',
+  createdAt: 'createdAt'
+} as const
+
+export type MonthlyImportFileScalarFieldEnum = (typeof MonthlyImportFileScalarFieldEnum)[keyof typeof MonthlyImportFileScalarFieldEnum]
+
+
+export const MonthlyImportErrorScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  batchId: 'batchId',
+  fileType: 'fileType',
+  sourceRow: 'sourceRow',
+  message: 'message',
+  rawData: 'rawData',
+  createdAt: 'createdAt'
+} as const
+
+export type MonthlyImportErrorScalarFieldEnum = (typeof MonthlyImportErrorScalarFieldEnum)[keyof typeof MonthlyImportErrorScalarFieldEnum]
+
+
+export const HistoricalKardexEntryScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  batchId: 'batchId',
+  sourceRow: 'sourceRow',
+  itemName: 'itemName',
+  itemNormalized: 'itemNormalized',
+  movementDate: 'movementDate',
+  warehouseCode: 'warehouseCode',
+  transactionType: 'transactionType',
+  documentNumber: 'documentNumber',
+  sourceBranch: 'sourceBranch',
+  destinationBranch: 'destinationBranch',
+  unitOriginal: 'unitOriginal',
+  unitCode: 'unitCode',
+  quantityIn: 'quantityIn',
+  unitCostIn: 'unitCostIn',
+  totalIn: 'totalIn',
+  quantityOut: 'quantityOut',
+  unitCostOut: 'unitCostOut',
+  totalOut: 'totalOut',
+  balanceQuantity: 'balanceQuantity',
+  balanceTotalCost: 'balanceTotalCost',
+  averageCost: 'averageCost',
+  supplierName: 'supplierName',
+  createdAt: 'createdAt'
+} as const
+
+export type HistoricalKardexEntryScalarFieldEnum = (typeof HistoricalKardexEntryScalarFieldEnum)[keyof typeof HistoricalKardexEntryScalarFieldEnum]
+
+
+export const RecipeComponentSnapshotScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  batchId: 'batchId',
+  sourceRow: 'sourceRow',
+  articleName: 'articleName',
+  articleNormalized: 'articleNormalized',
+  groupName: 'groupName',
+  ingredientName: 'ingredientName',
+  ingredientNormalized: 'ingredientNormalized',
+  unitOriginal: 'unitOriginal',
+  unitCode: 'unitCode',
+  quantity: 'quantity',
+  unitCost: 'unitCost',
+  totalCost: 'totalCost',
+  wasteFactor: 'wasteFactor',
+  grossQuantity: 'grossQuantity',
+  costWithWaste: 'costWithWaste',
+  recoveryFactor: 'recoveryFactor',
+  finalCost: 'finalCost',
+  createdAt: 'createdAt'
+} as const
+
+export type RecipeComponentSnapshotScalarFieldEnum = (typeof RecipeComponentSnapshotScalarFieldEnum)[keyof typeof RecipeComponentSnapshotScalarFieldEnum]
+
+
+export const SalesLineScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  batchId: 'batchId',
+  sourceRow: 'sourceRow',
+  groupName: 'groupName',
+  subgroupName: 'subgroupName',
+  saleDate: 'saleDate',
+  documentNumber: 'documentNumber',
+  articleName: 'articleName',
+  articleNormalized: 'articleNormalized',
+  quantity: 'quantity',
+  unitPrice: 'unitPrice',
+  discountPercent: 'discountPercent',
+  taxRate: 'taxRate',
+  subtotal: 'subtotal',
+  subtotalZeroDiscount: 'subtotalZeroDiscount',
+  subtotalZero: 'subtotalZero',
+  subtotalTaxed: 'subtotalTaxed',
+  footerDiscount: 'footerDiscount',
+  taxableSubtotalAfterDiscount: 'taxableSubtotalAfterDiscount',
+  taxAmount: 'taxAmount',
+  serviceAmount: 'serviceAmount',
+  totalAmount: 'totalAmount',
+  createdAt: 'createdAt'
+} as const
+
+export type SalesLineScalarFieldEnum = (typeof SalesLineScalarFieldEnum)[keyof typeof SalesLineScalarFieldEnum]
+
+
+export const WaiterSalesLineScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  batchId: 'batchId',
+  sourceRow: 'sourceRow',
+  waiterName: 'waiterName',
+  waiterNormalized: 'waiterNormalized',
+  groupName: 'groupName',
+  subgroupName: 'subgroupName',
+  articleName: 'articleName',
+  articleNormalized: 'articleNormalized',
+  quantity: 'quantity',
+  unitValue: 'unitValue',
+  subtotal: 'subtotal',
+  discount: 'discount',
+  totalAmount: 'totalAmount',
+  createdAt: 'createdAt'
+} as const
+
+export type WaiterSalesLineScalarFieldEnum = (typeof WaiterSalesLineScalarFieldEnum)[keyof typeof WaiterSalesLineScalarFieldEnum]
+
+
 export const InventoryBalanceScalarFieldEnum = {
   id: 'id',
   organizationId: 'organizationId',
@@ -424,6 +597,14 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -438,4 +619,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

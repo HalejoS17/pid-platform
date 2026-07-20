@@ -1,0 +1,224 @@
+enum MonthlyImportStatus {
+  PROCESSING
+  COMPLETED
+  COMPLETED_WITH_ERRORS
+  FAILED
+  REPLACED
+
+  @@schema("imports")
+}
+
+enum MonthlyImportFileType {
+  KARDEX
+  RECIPES
+  SALES
+  WAITER_SALES
+
+  @@schema("imports")
+}
+
+model MonthlyImportBatch {
+  id             String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String              @map("organization_id") @db.Uuid
+  periodYear     Int                 @map("period_year") @db.SmallInt
+  periodMonth    Int                 @map("period_month") @db.SmallInt
+  version        Int                 @default(1)
+  isCurrent      Boolean             @default(false) @map("is_current")
+  status         MonthlyImportStatus @default(PROCESSING)
+  sourceSystem   String              @default("LEGACY_EXCEL") @map("source_system") @db.VarChar(50)
+  totalRows      Int                 @default(0) @map("total_rows")
+  validRows      Int                 @default(0) @map("valid_rows")
+  ignoredRows    Int                 @default(0) @map("ignored_rows")
+  errorRows      Int                 @default(0) @map("error_rows")
+  summary        Json?
+  failureMessage String?             @map("failure_message") @db.VarChar(1000)
+  startedAt      DateTime            @default(now()) @map("started_at") @db.Timestamptz(6)
+  completedAt    DateTime?           @map("completed_at") @db.Timestamptz(6)
+  createdAt      DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  files      MonthlyImportFile[]
+  errors     MonthlyImportError[]
+  kardexRows HistoricalKardexEntry[]
+  recipeRows RecipeComponentSnapshot[]
+  salesRows  SalesLine[]
+  waiterRows WaiterSalesLine[]
+
+  @@unique([organizationId, id], map: "monthly_import_batches_org_id_id_key")
+  @@unique([organizationId, periodYear, periodMonth, version], map: "monthly_import_batches_org_period_version_key")
+  @@index([organizationId, periodYear, periodMonth, status], map: "monthly_import_batches_org_period_status_idx")
+  @@index([organizationId, isCurrent, status], map: "monthly_import_batches_org_current_status_idx")
+  @@map("monthly_import_batches")
+  @@schema("imports")
+}
+
+model MonthlyImportFile {
+  id             String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String                @map("organization_id") @db.Uuid
+  batchId        String                @map("batch_id") @db.Uuid
+  type           MonthlyImportFileType
+  originalName   String                @map("original_name") @db.VarChar(255)
+  sha256         String                @db.Char(64)
+  sheetName      String                @map("sheet_name") @db.VarChar(120)
+  totalRows      Int                   @default(0) @map("total_rows")
+  validRows      Int                   @default(0) @map("valid_rows")
+  ignoredRows    Int                   @default(0) @map("ignored_rows")
+  errorRows      Int                   @default(0) @map("error_rows")
+  controlTotals  Json?                 @map("control_totals")
+  createdAt      DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  batch MonthlyImportBatch @relation(fields: [organizationId, batchId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([organizationId, batchId, type], map: "monthly_import_files_org_batch_type_key")
+  @@index([organizationId, type, sha256], map: "monthly_import_files_org_type_hash_idx")
+  @@map("monthly_import_files")
+  @@schema("imports")
+}
+
+model MonthlyImportError {
+  id             String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String                @map("organization_id") @db.Uuid
+  batchId        String                @map("batch_id") @db.Uuid
+  fileType       MonthlyImportFileType @map("file_type")
+  sourceRow      Int                   @map("source_row")
+  message        String                @db.VarChar(500)
+  rawData        Json?                 @map("raw_data")
+  createdAt      DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  batch MonthlyImportBatch @relation(fields: [organizationId, batchId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([organizationId, batchId, fileType], map: "monthly_import_errors_org_batch_type_idx")
+  @@map("monthly_import_errors")
+  @@schema("imports")
+}
+
+model HistoricalKardexEntry {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId    String   @map("organization_id") @db.Uuid
+  batchId           String   @map("batch_id") @db.Uuid
+  sourceRow         Int      @map("source_row")
+  itemName          String   @map("item_name") @db.VarChar(250)
+  itemNormalized    String   @map("item_normalized") @db.VarChar(250)
+  movementDate      DateTime @map("movement_date") @db.Timestamptz(6)
+  warehouseCode     String   @map("warehouse_code") @db.VarChar(50)
+  transactionType   String   @map("transaction_type") @db.VarChar(120)
+  documentNumber    String?  @map("document_number") @db.VarChar(100)
+  sourceBranch      String?  @map("source_branch") @db.VarChar(80)
+  destinationBranch String?  @map("destination_branch") @db.VarChar(80)
+  unitOriginal      String?  @map("unit_original") @db.VarChar(40)
+  unitCode          String   @map("unit_code") @db.VarChar(30)
+  quantityIn        Decimal  @default(0) @map("quantity_in") @db.Decimal(20, 6)
+  unitCostIn        Decimal  @default(0) @map("unit_cost_in") @db.Decimal(20, 6)
+  totalIn           Decimal  @default(0) @map("total_in") @db.Decimal(20, 6)
+  quantityOut       Decimal  @default(0) @map("quantity_out") @db.Decimal(20, 6)
+  unitCostOut       Decimal  @default(0) @map("unit_cost_out") @db.Decimal(20, 6)
+  totalOut          Decimal  @default(0) @map("total_out") @db.Decimal(20, 6)
+  balanceQuantity   Decimal  @default(0) @map("balance_quantity") @db.Decimal(20, 6)
+  balanceTotalCost  Decimal  @default(0) @map("balance_total_cost") @db.Decimal(20, 6)
+  averageCost       Decimal  @default(0) @map("average_cost") @db.Decimal(20, 6)
+  supplierName      String?  @map("supplier_name") @db.VarChar(250)
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  batch MonthlyImportBatch @relation(fields: [organizationId, batchId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([organizationId, batchId, sourceRow], map: "historical_kardex_org_batch_row_key")
+  @@index([organizationId, itemNormalized, warehouseCode, movementDate], map: "historical_kardex_org_item_warehouse_date_idx")
+  @@index([organizationId, movementDate], map: "historical_kardex_org_date_idx")
+  @@index([organizationId, transactionType, movementDate], map: "historical_kardex_org_transaction_date_idx")
+  @@map("historical_kardex_entries")
+  @@schema("analytics")
+}
+
+model RecipeComponentSnapshot {
+  id                   String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId       String   @map("organization_id") @db.Uuid
+  batchId              String   @map("batch_id") @db.Uuid
+  sourceRow            Int      @map("source_row")
+  articleName          String   @map("article_name") @db.VarChar(250)
+  articleNormalized    String   @map("article_normalized") @db.VarChar(250)
+  groupName            String?  @map("group_name") @db.VarChar(150)
+  ingredientName       String   @map("ingredient_name") @db.VarChar(250)
+  ingredientNormalized String   @map("ingredient_normalized") @db.VarChar(250)
+  unitOriginal         String?  @map("unit_original") @db.VarChar(40)
+  unitCode             String   @map("unit_code") @db.VarChar(30)
+  quantity             Decimal  @default(0) @db.Decimal(20, 6)
+  unitCost             Decimal  @default(0) @map("unit_cost") @db.Decimal(20, 6)
+  totalCost            Decimal  @default(0) @map("total_cost") @db.Decimal(20, 6)
+  wasteFactor          Decimal  @default(0) @map("waste_factor") @db.Decimal(20, 6)
+  grossQuantity        Decimal  @default(0) @map("gross_quantity") @db.Decimal(20, 6)
+  costWithWaste        Decimal  @default(0) @map("cost_with_waste") @db.Decimal(20, 6)
+  recoveryFactor       Decimal  @default(0) @map("recovery_factor") @db.Decimal(20, 6)
+  finalCost            Decimal  @default(0) @map("final_cost") @db.Decimal(20, 6)
+  createdAt            DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  batch MonthlyImportBatch @relation(fields: [organizationId, batchId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([organizationId, batchId, sourceRow], map: "recipe_snapshots_org_batch_row_key")
+  @@index([organizationId, batchId, articleNormalized], map: "recipe_snapshots_org_batch_article_idx")
+  @@index([organizationId, ingredientNormalized], map: "recipe_snapshots_org_ingredient_idx")
+  @@map("recipe_component_snapshots")
+  @@schema("analytics")
+}
+
+model SalesLine {
+  id                           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId               String   @map("organization_id") @db.Uuid
+  batchId                      String   @map("batch_id") @db.Uuid
+  sourceRow                    Int      @map("source_row")
+  groupName                    String?  @map("group_name") @db.VarChar(150)
+  subgroupName                 String?  @map("subgroup_name") @db.VarChar(150)
+  saleDate                     DateTime @map("sale_date") @db.Timestamptz(6)
+  documentNumber               String   @map("document_number") @db.VarChar(120)
+  articleName                  String   @map("article_name") @db.VarChar(250)
+  articleNormalized            String   @map("article_normalized") @db.VarChar(250)
+  quantity                     Decimal  @default(0) @db.Decimal(20, 6)
+  unitPrice                    Decimal  @default(0) @map("unit_price") @db.Decimal(20, 6)
+  discountPercent              Decimal  @default(0) @map("discount_percent") @db.Decimal(12, 6)
+  taxRate                      Decimal  @default(0) @map("tax_rate") @db.Decimal(12, 6)
+  subtotal                     Decimal  @default(0) @db.Decimal(20, 6)
+  subtotalZeroDiscount         Decimal  @default(0) @map("subtotal_zero_discount") @db.Decimal(20, 6)
+  subtotalZero                 Decimal  @default(0) @map("subtotal_zero") @db.Decimal(20, 6)
+  subtotalTaxed                Decimal  @default(0) @map("subtotal_taxed") @db.Decimal(20, 6)
+  footerDiscount               Decimal  @default(0) @map("footer_discount") @db.Decimal(20, 6)
+  taxableSubtotalAfterDiscount Decimal  @default(0) @map("taxable_subtotal_after_discount") @db.Decimal(20, 6)
+  taxAmount                    Decimal  @default(0) @map("tax_amount") @db.Decimal(20, 6)
+  serviceAmount                Decimal  @default(0) @map("service_amount") @db.Decimal(20, 6)
+  totalAmount                  Decimal  @default(0) @map("total_amount") @db.Decimal(20, 6)
+  createdAt                    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  batch MonthlyImportBatch @relation(fields: [organizationId, batchId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([organizationId, batchId, sourceRow], map: "sales_lines_org_batch_row_key")
+  @@index([organizationId, batchId, saleDate], map: "sales_lines_org_batch_date_idx")
+  @@index([organizationId, articleNormalized], map: "sales_lines_org_article_idx")
+  @@index([organizationId, groupName, saleDate], map: "sales_lines_org_group_date_idx")
+  @@map("sales_lines")
+  @@schema("analytics")
+}
+
+model WaiterSalesLine {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId    String   @map("organization_id") @db.Uuid
+  batchId           String   @map("batch_id") @db.Uuid
+  sourceRow         Int      @map("source_row")
+  waiterName        String   @map("waiter_name") @db.VarChar(180)
+  waiterNormalized  String   @map("waiter_normalized") @db.VarChar(180)
+  groupName         String?  @map("group_name") @db.VarChar(150)
+  subgroupName      String?  @map("subgroup_name") @db.VarChar(150)
+  articleName       String   @map("article_name") @db.VarChar(250)
+  articleNormalized String   @map("article_normalized") @db.VarChar(250)
+  quantity          Decimal  @default(0) @db.Decimal(20, 6)
+  unitValue         Decimal  @default(0) @map("unit_value") @db.Decimal(20, 6)
+  subtotal          Decimal  @default(0) @db.Decimal(20, 6)
+  discount          Decimal  @default(0) @db.Decimal(20, 6)
+  totalAmount       Decimal  @default(0) @map("total_amount") @db.Decimal(20, 6)
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  batch MonthlyImportBatch @relation(fields: [organizationId, batchId], references: [organizationId, id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([organizationId, batchId, sourceRow], map: "waiter_sales_org_batch_row_key")
+  @@index([organizationId, batchId, waiterNormalized], map: "waiter_sales_org_batch_waiter_idx")
+  @@index([organizationId, groupName], map: "waiter_sales_org_group_idx")
+  @@map("waiter_sales_lines")
+  @@schema("analytics")
+}

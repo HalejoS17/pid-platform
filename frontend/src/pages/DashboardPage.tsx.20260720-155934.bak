@@ -1,0 +1,1038 @@
+import {
+  AxiosError } from "axios";
+import type { EChartsOption } from "echarts";
+import {
+  AlertOctagon,
+  Banknote,
+  BarChart3,
+  Boxes,
+  ChevronDown,
+  Clock3,
+  Filter,
+  Gauge,
+  ReceiptText,
+  RotateCcw,
+  Search,
+  TrendingDown,
+  TrendingUp,
+  UsersRound,
+  UtensilsCrossed,
+  WalletCards,
+  } from 'lucide-react';
+import { useMemo,
+  useState } from "react";
+import type { ReactNode } from "react";
+import { EChart } from "../components/EChart";
+import {
+  EmptyPanel,
+  ErrorPanel,
+  LoadingPanel,
+  PageHeader,
+  } from "../components/ui";
+import { useMonthlyAnalytics } from "../hooks/use-monthly-imports";
+import {
+  formatCompactCurrency,
+  formatCurrency,
+  formatNumber,
+  } from "../lib/format";
+import type {
+  MonthlyAnalyticsFilters,
+} from '../types/monthly-imports';
+
+import { ProfitabilityTable } from '../components/ProfitabilityTable';
+
+const monthNames = [
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
+];
+
+const selectClass =
+  "w-full rounded-xl border border-white/20 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-blue-300 focus:ring-4 focus:ring-blue-400/20";
+
+function initialPeriod() {
+  const saved = localStorage.getItem("pid.analytics.period");
+
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved) as {
+        year?: number;
+        month?: number;
+      };
+
+      if (parsed.year && parsed.month) {
+        return {
+          year: parsed.year,
+          month: parsed.month,
+        };
+      }
+    } catch {
+      // Se utiliza el periodo inicial.
+    }
+  }
+
+  return {
+    year: 2024,
+    month: 3,
+  };
+}
+
+function MetricCard({
+  label,
+  value,
+  detail,
+  icon,
+  tone,
+}: {
+  label: string;
+  value: string;
+  detail: string;
+  icon: ReactNode;
+  tone: "navy" | "blue" | "green" | "amber" | "red";
+}) {
+  const style = {
+    navy: {
+      border: "border-l-[#0C1D63]",
+      icon: "bg-indigo-50 text-[#0C1D63]",
+    },
+    blue: {
+      border: "border-l-[#2570B8]",
+      icon: "bg-blue-50 text-[#2570B8]",
+    },
+    green: {
+      border: "border-l-emerald-500",
+      icon: "bg-emerald-50 text-emerald-600",
+    },
+    amber: {
+      border: "border-l-amber-500",
+      icon: "bg-amber-50 text-amber-600",
+    },
+    red: {
+      border: "border-l-[#FF2402]",
+      icon: "bg-red-50 text-[#FF2402]",
+    },
+  }[tone];
+
+  return (
+    <article
+      className={`rounded-2xl border border-slate-200 border-l-4 bg-white p-5 shadow-sm ${style.border}`}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-slate-500">{label}</p>
+          <p className="mt-2 text-2xl font-bold tracking-tight text-slate-950">
+            {value}
+          </p>
+        </div>
+
+        <div
+          className={`flex size-11 shrink-0 items-center justify-center rounded-xl ${style.icon}`}
+        >
+          {icon}
+        </div>
+      </div>
+
+      <p className="mt-3 text-xs leading-5 text-slate-500">{detail}</p>
+    </article>
+  );
+}
+
+function SectionTitle({
+  eyebrow,
+  title,
+  description,
+  icon,
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+  icon: ReactNode;
+}) {
+  return (
+    <div className="mb-4 flex items-start gap-3">
+      <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#2570B8]">
+        {icon}
+      </div>
+
+      <div>
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#2570B8]">
+          {eyebrow}
+        </p>
+        <h2 className="mt-1 text-xl font-bold text-[#0C1D63]">{title}</h2>
+        <p className="mt-1 text-sm leading-6 text-slate-500">{description}</p>
+      </div>
+    </div>
+  );
+}
+
+function CorporateCard({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string;
+  subtitle: string;
+  children: ReactNode;
+}) {
+  return (
+    <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="border-b border-slate-100 px-5 py-4">
+        <h3 className="font-bold text-slate-900">{title}</h3>
+        <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
+      </div>
+      <div className="p-4">{children}</div>
+    </article>
+  );
+}
+
+export function DashboardPage() {
+  const [period, setPeriod] = useState(initialPeriod);
+  const [filters, setFilters] = useState<MonthlyAnalyticsFilters>({});
+const query = useMonthlyAnalytics(period.year, period.month, filters);
+  const data = query.data;
+
+  const activeFilterCount = Object.values(filters).filter(Boolean).length;
+
+  const updatePeriod = (next: { year: number; month: number }) => {
+    setPeriod(next);
+    localStorage.setItem("pid.analytics.period", JSON.stringify(next));
+    setFilters({});
+  };
+
+  const salesGroupOption = useMemo<EChartsOption>(
+    () => ({
+      color: ["#2570B8", "#FF2402", "#0C1D63"],
+      tooltip: {
+        trigger: "axis",
+      },
+      legend: {
+        top: 0,
+        data: ["Ventas netas", "Costo estimado", "Margen %"],
+      },
+      grid: {
+        left: 12,
+        right: 24,
+        top: 48,
+        bottom: 72,
+        containLabel: true,
+      },
+      xAxis: {
+        type: "category",
+        data: data?.salesByGroup.slice(0, 10).map((item) => item.name) ?? [],
+        axisLabel: {
+          rotate: 28,
+          color: "#64748B",
+        },
+        axisTick: {
+          show: false,
+        },
+      },
+      yAxis: [
+        {
+          type: "value",
+          axisLabel: {
+            formatter: (value: string | number) =>
+              formatCompactCurrency(Number(value)),
+          },
+          splitLine: {
+            lineStyle: {
+              color: "#EEF2F7",
+            },
+          },
+        },
+        {
+          type: "value",
+          min: 0,
+          max: 1,
+          axisLabel: {
+            formatter: (value: string | number) =>
+              `${Math.round(Number(value) * 100)}%`,
+          },
+        },
+      ],
+      series: [
+        {
+          name: "Ventas netas",
+          type: "bar",
+          data: data?.salesByGroup.slice(0, 10).map((item) => item.sales) ?? [],
+          barMaxWidth: 34,
+          itemStyle: {
+            borderRadius: [7, 7, 0, 0],
+          },
+        },
+        {
+          name: "Costo estimado",
+          type: "bar",
+          data: data?.salesByGroup.slice(0, 10).map((item) => item.cost) ?? [],
+          barMaxWidth: 34,
+          itemStyle: {
+            borderRadius: [7, 7, 0, 0],
+          },
+        },
+        {
+          name: "Margen %",
+          type: "line",
+          yAxisIndex: 1,
+          smooth: true,
+          symbolSize: 7,
+          data:
+            data?.salesByGroup.slice(0, 10).map((item) => item.marginPercent) ??
+            [],
+        },
+      ],
+    }),
+    [data],
+  );
+
+  const dailySalesOption = useMemo<EChartsOption>(
+    () => ({
+      color: ["#2570B8"],
+      tooltip: {
+        trigger: "axis",
+      },
+      grid: {
+        left: 12,
+        right: 18,
+        top: 22,
+        bottom: 20,
+        containLabel: true,
+      },
+      xAxis: {
+        type: "category",
+        data: data?.salesByDay.map((item) => item.date.slice(8, 10)) ?? [],
+        axisLabel: {
+          color: "#64748B",
+        },
+        axisTick: {
+          show: false,
+        },
+      },
+      yAxis: {
+        type: "value",
+        axisLabel: {
+          formatter: (value: string | number) =>
+            formatCompactCurrency(Number(value)),
+        },
+        splitLine: {
+          lineStyle: {
+            color: "#EEF2F7",
+          },
+        },
+      },
+      series: [
+        {
+          type: "line",
+          name: "Ventas",
+          data: data?.salesByDay.map((item) => item.sales) ?? [],
+          smooth: true,
+          symbol: "circle",
+          symbolSize: 6,
+          areaStyle: {
+            opacity: 0.12,
+          },
+        },
+      ],
+    }),
+    [data],
+  );
+
+  const agingOption = useMemo<EChartsOption>(
+    () => ({
+      color: ["#10B981", "#2570B8", "#F59E0B", "#FF2402"],
+      tooltip: {
+        trigger: "item",
+      },
+      legend: {
+        bottom: 0,
+        textStyle: {
+          color: "#475569",
+        },
+      },
+      series: [
+        {
+          type: "pie",
+          radius: ["45%", "70%"],
+          center: ["50%", "42%"],
+          itemStyle: {
+            borderColor: "#FFFFFF",
+            borderWidth: 4,
+            borderRadius: 8,
+          },
+          label: {
+            formatter: "{b}\n{d}%",
+            color: "#334155",
+          },
+          data: data?.inventoryAging ?? [],
+        },
+      ],
+    }),
+    [data],
+  );
+
+  const immobilizedOption = useMemo<EChartsOption>(
+    () => ({
+      color: ["#FF2402"],
+      tooltip: {
+        trigger: "axis",
+      },
+      grid: {
+        left: 10,
+        right: 18,
+        top: 8,
+        bottom: 10,
+        containLabel: true,
+      },
+      xAxis: {
+        type: "value",
+        axisLabel: {
+          formatter: (value: string | number) =>
+            formatCompactCurrency(Number(value)),
+        },
+        splitLine: {
+          lineStyle: {
+            color: "#EEF2F7",
+          },
+        },
+      },
+      yAxis: {
+        type: "category",
+        data:
+          data?.topImmobilized
+            .slice(0, 10)
+            .map((item) => item.itemName)
+            .reverse() ?? [],
+        axisLabel: {
+          color: "#475569",
+          width: 180,
+          overflow: "truncate",
+        },
+        axisTick: {
+          show: false,
+        },
+        axisLine: {
+          show: false,
+        },
+      },
+      series: [
+        {
+          type: "bar",
+          data:
+            data?.topImmobilized
+              .slice(0, 10)
+              .map((item) => item.value)
+              .reverse() ?? [],
+          barMaxWidth: 24,
+          itemStyle: {
+            borderRadius: [0, 7, 7, 0],
+          },
+        },
+      ],
+    }),
+    [data],
+  );
+
+  const isNotFound =
+    query.error instanceof AxiosError && query.error.response?.status === 404;
+
+  if (query.isLoading) {
+    return <LoadingPanel />;
+  }
+
+  return (
+    <div className="space-y-7">
+      <PageHeader
+        title="Panel integral de inteligencia de datos"
+        description="Indicadores financieros, comerciales y operativos consolidados para la toma de decisiones."
+        onRefresh={() => {
+          void query.refetch();
+        }}
+        refreshing={query.isFetching}
+      />
+
+      <details
+        open
+        className="group overflow-hidden rounded-2xl bg-[#0C1D63] shadow-lg"
+      >
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-white marker:hidden">
+          <div className="flex items-center gap-3">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-white/10">
+              <Filter className="size-5" />
+            </div>
+            <div>
+              <h2 className="font-bold">Filtros de análisis</h2>
+              <p className="text-sm text-blue-100">
+                Despliega o contrae los parámetros del panel.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {activeFilterCount > 0 ? (
+              <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#0C1D63]">
+                {activeFilterCount} activos
+              </span>
+            ) : null}
+            <ChevronDown className="size-5 transition group-open:rotate-180" />
+          </div>
+        </summary>
+
+        <div className="border-t border-white/15 px-5 pb-5 pt-4">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <label>
+              <span className="mb-2 block text-sm font-semibold text-white">
+                Año
+              </span>
+              <select
+                value={period.year}
+                onChange={(event) =>
+                  updatePeriod({
+                    ...period,
+                    year: Number(event.target.value),
+                  })
+                }
+                className={selectClass}
+              >
+                {Array.from({ length: 10 }, (_, index) => 2020 + index).map(
+                  (year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ),
+                )}
+              </select>
+            </label>
+
+            <label>
+              <span className="mb-2 block text-sm font-semibold text-white">
+                Mes
+              </span>
+              <select
+                value={period.month}
+                onChange={(event) =>
+                  updatePeriod({
+                    ...period,
+                    month: Number(event.target.value),
+                  })
+                }
+                className={selectClass}
+              >
+                {monthNames.map((name, index) => (
+                  <option key={name} value={index + 1}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              <span className="mb-2 block text-sm font-semibold text-white">
+                Grupo 1
+              </span>
+              <select
+                value={filters.group1 ?? ""}
+                onChange={(event) => {
+                  setFilters({
+                    group1: event.target.value || undefined,
+                  });
+                }}
+                className={selectClass}
+              >
+                <option value="">Todos los grupos</option>
+                {(data?.filterOptions.groups1 ?? []).map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              <span className="mb-2 block text-sm font-semibold text-white">
+                Grupo 2
+              </span>
+              <select
+                value={filters.group2 ?? ""}
+                onChange={(event) => {
+                  setFilters((current) => ({
+                    group1: current.group1,
+                    group2: event.target.value || undefined,
+                  }));
+                }}
+                className={selectClass}
+              >
+                <option value="">Todos los subgrupos</option>
+                {(data?.filterOptions.groups2 ?? []).map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              <span className="mb-2 block text-sm font-semibold text-white">
+                Plato o artículo
+              </span>
+              <select
+                value={filters.article ?? ""}
+                onChange={(event) => {
+                  setFilters((current) => ({
+                    ...current,
+                    article: event.target.value || undefined,
+                  }));
+                }}
+                className={selectClass}
+              >
+                <option value="">Todos los platos</option>
+                {(data?.filterOptions.articles ?? []).map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              <span className="mb-2 block text-sm font-semibold text-white">
+                Insumo
+              </span>
+              <select
+                value={filters.ingredient ?? ""}
+                onChange={(event) => {
+                  setFilters((current) => ({
+                    ...current,
+                    ingredient: event.target.value || undefined,
+                  }));
+                }}
+                className={selectClass}
+              >
+                <option value="">Todos los insumos</option>
+                {(data?.filterOptions.ingredients ?? []).map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="mt-4 flex flex-col gap-3 border-t border-white/15 pt-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-sm text-blue-100">
+              Periodo:{" "}
+              <strong className="text-white">
+                {monthNames[period.month - 1]} {period.year}
+              </strong>
+              {data ? (
+                <>
+                  {" "}
+                  · {formatNumber(data.filterSummary.salesLines)} líneas de
+                  venta
+                </>
+              ) : null}
+            </div>
+
+            <button
+              type="button"
+              disabled={activeFilterCount === 0}
+              onClick={() => {
+                setFilters({});
+              }}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <RotateCcw className="size-4" />
+              Restablecer filtros
+            </button>
+          </div>
+        </div>
+      </details>
+
+      {isNotFound ? (
+        <EmptyPanel
+          title="El periodo todavía no fue cargado"
+          description="Abre Carga mensual, selecciona los cuatro Excel del mismo mes y procesa la importación."
+        />
+      ) : (
+        <ErrorPanel errors={query.error ? [query.error] : []} />
+      )}
+
+      {data ? (
+        <>
+          <section>
+            <SectionTitle
+              eyebrow="Resumen gerencial"
+              title="Indicadores clave"
+              description="Principales métricas financieras y operativas del periodo seleccionado."
+              icon={<BarChart3 className="size-5" />}
+            />
+
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <MetricCard
+                label="Ventas netas"
+                value={formatCurrency(data.kpis.netSales)}
+                detail={`Facturación total: ${formatCurrency(
+                  data.kpis.grossBilled,
+                )}`}
+                icon={<ReceiptText className="size-5" />}
+                tone="navy"
+              />
+              <MetricCard
+                label="Margen bruto estimado"
+                value={`${(data.kpis.estimatedGrossMarginPercent * 100).toFixed(
+                  1,
+                )}%`}
+                detail={`Cobertura de recetas: ${(
+                  data.kpis.recipeCoveragePercent * 100
+                ).toFixed(1)}%`}
+                icon={<TrendingUp className="size-5" />}
+                tone="green"
+              />
+              <MetricCard
+                label="Costo estimado de ventas"
+                value={formatCurrency(data.kpis.estimatedCostOfSales)}
+                detail="Cantidad vendida multiplicada por el costo de receta homologado."
+                icon={<UtensilsCrossed className="size-5" />}
+                tone="blue"
+              />
+              <MetricCard
+                label="Valor del inventario"
+                value={formatCurrency(data.kpis.inventoryValue)}
+                detail="Saldo positivo valorizado al costo promedio del cierre mensual."
+                icon={<Banknote className="size-5" />}
+                tone="navy"
+              />
+              <MetricCard
+                label="Capital inmovilizado"
+                value={formatCurrency(data.kpis.immobilizedCapital)}
+                detail="Existencias sin salida o con rotación lenta superior a 60 días."
+                icon={<AlertOctagon className="size-5" />}
+                tone="red"
+              />
+              <MetricCard
+                label="Rotación de inventario"
+                value={`${data.kpis.rotation90Days.toFixed(2)}×`}
+                detail="Salidas valorizadas frente al inventario promedio del alcance analizado."
+                icon={<Gauge className="size-5" />}
+                tone="blue"
+              />
+              <MetricCard
+                label="Días de inventario"
+                value={
+                  data.kpis.inventoryDays === null
+                    ? "Sin cálculo"
+                    : `${formatNumber(data.kpis.inventoryDays)} días`
+                }
+                detail="Menos días suele representar una rotación más eficiente."
+                icon={<Clock3 className="size-5" />}
+                tone="amber"
+              />
+              <MetricCard
+                label="Productos sin movimiento"
+                value={formatNumber(data.kpis.noOutputProducts)}
+                detail={`${data.kpis.slowRotationProducts} productos registran 60 días o más desde su última salida.`}
+                icon={<WalletCards className="size-5" />}
+                tone="red"
+              />
+            </div>
+          </section>
+
+          <section>
+            <SectionTitle
+              eyebrow="Desempeño comercial"
+              title="Ventas y rentabilidad"
+              description="Comportamiento de ingresos, costos y margen dentro del alcance seleccionado."
+              icon={<TrendingUp className="size-5" />}
+            />
+
+            <div className="grid gap-6 xl:grid-cols-[1.35fr_0.9fr]">
+              <CorporateCard
+                title={`Ventas, costo y margen por ${data.breakdown.label.toLowerCase()}`}
+                subtitle="Los diez elementos con mayor venta neta dentro del filtro."
+              >
+                <EChart option={salesGroupOption} height={390} />
+              </CorporateCard>
+
+              <CorporateCard
+                title="Comportamiento diario de ventas"
+                subtitle={`${monthNames[period.month - 1]} ${period.year}`}
+              >
+                <EChart option={dailySalesOption} height={390} />
+              </CorporateCard>
+            </div>
+          </section>
+
+          <section>
+            <SectionTitle
+              eyebrow="Análisis de rentabilidad"
+              title="Rentabilidad por plato"
+              description="Identificación de los platos con mayor y menor margen estimado."
+              icon={<UtensilsCrossed className="size-5" />}
+            />
+
+            <div className="grid gap-6 xl:grid-cols-2">
+              <CorporateCard
+                title="Top 10 platos más rentables"
+                subtitle="Ordenados por porcentaje de margen estimado."
+              >
+                <ProfitabilityTable
+                  items={data.mostProfitableArticles}
+                  mode="MOST"
+                />
+              </CorporateCard>
+
+              <CorporateCard
+                title="Top 10 platos menos rentables"
+                subtitle="Ordenados desde el menor porcentaje de margen estimado."
+              >
+                <ProfitabilityTable
+                  items={data.leastProfitableArticles}
+                  mode="LEAST"
+                />
+              </CorporateCard>
+            </div>
+          </section>
+
+          <section>
+            <SectionTitle
+              eyebrow="Gestión comercial"
+              title="Desempeño de meseros"
+              description="Ventas totales por mesero y detalle de los artículos comercializados."
+              icon={<UsersRound className="size-5" />}
+            />
+
+            <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+              <CorporateCard
+                title="Ventas por mesero"
+                subtitle="Comparación del total vendido por cada integrante."
+              >
+                <EChart option={waiterSalesOption} height={430} />
+              </CorporateCard>
+
+              <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div className="border-b border-slate-100 bg-slate-50 px-5 py-4">
+                  <label className="block">
+                    <span className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Consultar mesero
+                    </span>
+
+                    <div className="relative">
+                      <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                      <select
+                        value={selectedWaiterData?.name ?? ""}
+                        onChange={(event) =>
+                          setSelectedWaiter(event.target.value)
+                        }
+                        className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm font-semibold text-slate-700 outline-none focus:border-[#2570B8] focus:ring-4 focus:ring-blue-100"
+                      >
+                        {waiterPerformance.map((waiter) => (
+                          <option key={waiter.name} value={waiter.name}>
+                            {waiter.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </label>
+                </div>
+
+                {selectedWaiterData ? (
+                  <>
+                    <div className="grid grid-cols-2 gap-3 p-5 sm:grid-cols-4 xl:grid-cols-2 2xl:grid-cols-4">
+                      <div className="rounded-xl bg-blue-50 p-3">
+                        <p className="text-xs font-semibold text-slate-500">
+                          Vendido
+                        </p>
+                        <p className="mt-1 font-bold text-[#0C1D63]">
+                          {formatCurrency(selectedWaiterData.sales)}
+                        </p>
+                      </div>
+                      <div className="rounded-xl bg-emerald-50 p-3">
+                        <p className="text-xs font-semibold text-slate-500">
+                          Participación
+                        </p>
+                        <p className="mt-1 font-bold text-emerald-700">
+                          {(selectedWaiterData.share * 100).toFixed(1)}%
+                        </p>
+                      </div>
+                      <div className="rounded-xl bg-indigo-50 p-3">
+                        <p className="text-xs font-semibold text-slate-500">
+                          Cantidad
+                        </p>
+                        <p className="mt-1 font-bold text-[#0C1D63]">
+                          {formatNumber(selectedWaiterData.quantity)}
+                        </p>
+                      </div>
+                      <div className="rounded-xl bg-amber-50 p-3">
+                        <p className="text-xs font-semibold text-slate-500">
+                          Artículos
+                        </p>
+                        <p className="mt-1 font-bold text-amber-700">
+                          {selectedWaiterData.differentArticles}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-slate-100 p-4">
+                      <h3 className="mb-2 font-bold text-slate-900">
+                        Principales artículos vendidos
+                      </h3>
+                      <EChart option={waiterArticlesOption} height={330} />
+                    </div>
+                  </>
+                ) : (
+                  <EmptyPanel
+                    title="Sin información de meseros"
+                    description="No existen ventas de meseros para el filtro seleccionado."
+                  />
+                )}
+              </article>
+            </div>
+
+            {selectedWaiterData ? (
+              <article className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div className="border-b border-slate-100 px-5 py-4">
+                  <h3 className="font-bold text-slate-900">
+                    Detalle de ventas de {selectedWaiterData.name}
+                  </h3>
+                  <p className="mt-1 text-sm text-slate-500">
+                    Artículos ordenados por valor vendido.
+                  </p>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[720px] text-left text-sm">
+                    <thead className="bg-[#0C1D63] text-xs uppercase tracking-wide text-white">
+                      <tr>
+                        <th className="px-5 py-4">Artículo</th>
+                        <th className="px-5 py-4 text-right">Cantidad</th>
+                        <th className="px-5 py-4 text-right">Venta</th>
+                        <th className="px-5 py-4 text-right">Participación</th>
+                      </tr>
+                    </thead>
+
+                    <tbody className="divide-y divide-slate-100">
+                      {selectedWaiterData.topArticles.map((article) => (
+                        <tr
+                          key={article.name}
+                          className="transition hover:bg-slate-50"
+                        >
+                          <td className="px-5 py-4 font-semibold text-slate-900">
+                            {article.name}
+                          </td>
+                          <td className="px-5 py-4 text-right">
+                            {formatNumber(article.quantity)}
+                          </td>
+                          <td className="px-5 py-4 text-right font-bold text-[#0C1D63]">
+                            {formatCurrency(article.sales)}
+                          </td>
+                          <td className="px-5 py-4 text-right">
+                            {(article.share * 100).toFixed(1)}%
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </article>
+            ) : null}
+          </section>
+
+          <section>
+            <SectionTitle
+              eyebrow="Gestión operativa"
+              title="Inventario y rotación"
+              description="Composición monetaria del inventario y capital con baja movilidad."
+              icon={<Boxes className="size-5" />}
+            />
+
+            <div className="grid gap-6 xl:grid-cols-2">
+              <CorporateCard
+                title="Antigüedad monetaria del inventario"
+                subtitle="Distribución del capital según los días desde la última salida."
+              >
+                <EChart option={agingOption} height={370} />
+              </CorporateCard>
+
+              <CorporateCard
+                title="Productos con mayor capital detenido"
+                subtitle="Priorización de existencias con baja movilidad."
+              >
+                {data.topImmobilized.length > 0 ? (
+                  <EChart option={immobilizedOption} height={370} />
+                ) : (
+                  <EmptyPanel
+                    title="Sin capital inmovilizado"
+                    description="No se identificaron existencias detenidas para el filtro."
+                  />
+                )}
+              </CorporateCard>
+            </div>
+          </section>
+
+          <section>
+            <SectionTitle
+              eyebrow="Control de inventario"
+              title="Detalle de existencias de baja rotación"
+              description="Insumos que requieren seguimiento por su valor detenido y ausencia de movimiento."
+              icon={<TrendingDown className="size-5" />}
+            />
+
+            <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[980px] text-left text-sm">
+                  <thead className="bg-[#0C1D63] text-xs uppercase tracking-wide text-white">
+                    <tr>
+                      <th className="px-5 py-4">Insumo</th>
+                      <th className="px-5 py-4">Bodega</th>
+                      <th className="px-5 py-4 text-right">Cantidad</th>
+                      <th className="px-5 py-4 text-right">Costo promedio</th>
+                      <th className="px-5 py-4 text-right">Valor detenido</th>
+                      <th className="px-5 py-4 text-right">Días sin salida</th>
+                    </tr>
+                  </thead>
+
+                  <tbody className="divide-y divide-slate-100">
+                    {data.topImmobilized.map((item) => (
+                      <tr
+                        key={`${item.warehouseCode}:${item.itemName}`}
+                        className="transition hover:bg-slate-50"
+                      >
+                        <td className="px-5 py-4 font-semibold text-slate-900">
+                          {item.itemName}
+                        </td>
+                        <td className="px-5 py-4 text-slate-600">
+                          {item.warehouseCode}
+                        </td>
+                        <td className="px-5 py-4 text-right">
+                          {formatNumber(item.quantity)}
+                        </td>
+                        <td className="px-5 py-4 text-right">
+                          {formatCurrency(item.averageCost)}
+                        </td>
+                        <td className="px-5 py-4 text-right font-bold text-[#FF2402]">
+                          {formatCurrency(item.value)}
+                        </td>
+                        <td className="px-5 py-4 text-right">
+                          <span className="inline-flex rounded-full bg-red-50 px-2.5 py-1 font-semibold text-red-700">
+                            {item.daysWithoutOutput ?? "Sin salida"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </article>
+          </section>
+        </>
+      ) : null}
+    </div>
+  );
+}

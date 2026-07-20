@@ -1,0 +1,154 @@
+import type { Express } from 'express';
+
+export interface MonthlyImportFiles {
+  kardex?: Express.Multer.File[];
+  recipes?: Express.Multer.File[];
+  sales?: Express.Multer.File[];
+  waiterSales?: Express.Multer.File[];
+}
+
+export type ImportFileType = 'KARDEX' | 'RECIPES' | 'SALES' | 'WAITER_SALES';
+
+export type ImportIssueKind = 'ERROR' | 'IGNORED';
+
+export type ImportValidationProblemCode =
+  | 'MISSING_FILE'
+  | 'INVALID_EXTENSION'
+  | 'INVALID_WORKBOOK'
+  | 'MISSING_HEADERS'
+  | 'NO_VALID_ROWS';
+
+export interface ImportRowIssue {
+  kind: ImportIssueKind;
+  fileType: ImportFileType;
+  sourceRow: number;
+  message: string;
+  rawData?: Record<string, unknown>;
+}
+
+export interface ImportFileDiagnostic {
+  fileType: ImportFileType;
+  originalName: string;
+  problemCode: ImportValidationProblemCode;
+  message: string;
+  inspectedSheets: string[];
+  expectedHeaders: string[];
+  missingHeaders: string[];
+  bestCandidateSheet: string | null;
+  bestCandidateHeaderRow: number | null;
+  foundHeaders: string[];
+  details?: string[];
+}
+
+export interface MonthlyImportValidationErrorBody {
+  statusCode: 400;
+  code: 'MONTHLY_IMPORT_VALIDATION_FAILED';
+  error: string;
+  message: string;
+  reportFileName: string;
+  reportText: string;
+  issues: ImportFileDiagnostic[];
+}
+
+export interface ParsedFile<T> {
+  type: ImportFileType;
+  originalName: string;
+  sha256: string;
+  sheetName: string;
+  totalRows: number;
+  validRows: number;
+  ignoredRows: number;
+  errorRows: number;
+  controlTotals: Record<string, unknown>;
+  rows: T[];
+  errors: ImportRowIssue[];
+  ignoredIssues: ImportRowIssue[];
+}
+
+export interface ParsedKardexRow {
+  sourceRow: number;
+  itemName: string;
+  itemNormalized: string;
+  movementDate: Date;
+  warehouseCode: string;
+  transactionType: string;
+  documentNumber: string | null;
+  sourceBranch: string | null;
+  destinationBranch: string | null;
+  unitOriginal: string | null;
+  unitCode: string;
+  quantityIn: number;
+  unitCostIn: number;
+  totalIn: number;
+  quantityOut: number;
+  unitCostOut: number;
+  totalOut: number;
+  balanceQuantity: number;
+  balanceTotalCost: number;
+  averageCost: number;
+  supplierName: string | null;
+}
+
+export interface ParsedRecipeRow {
+  sourceRow: number;
+  articleName: string;
+  articleNormalized: string;
+  groupName: string | null;
+  ingredientName: string;
+  ingredientNormalized: string;
+  unitOriginal: string | null;
+  unitCode: string;
+  quantity: number;
+  unitCost: number;
+  totalCost: number;
+  wasteFactor: number;
+  grossQuantity: number;
+  costWithWaste: number;
+  recoveryFactor: number;
+  finalCost: number;
+}
+
+export interface ParsedSalesRow {
+  sourceRow: number;
+  groupName: string | null;
+  subgroupName: string | null;
+  saleDate: Date;
+  documentNumber: string;
+  articleName: string;
+  articleNormalized: string;
+  quantity: number;
+  unitPrice: number;
+  discountPercent: number;
+  taxRate: number;
+  subtotal: number;
+  subtotalZeroDiscount: number;
+  subtotalZero: number;
+  subtotalTaxed: number;
+  footerDiscount: number;
+  taxableSubtotalAfterDiscount: number;
+  taxAmount: number;
+  serviceAmount: number;
+  totalAmount: number;
+}
+
+export interface ParsedWaiterSalesRow {
+  sourceRow: number;
+  waiterName: string;
+  waiterNormalized: string;
+  groupName: string | null;
+  subgroupName: string | null;
+  articleName: string;
+  articleNormalized: string;
+  quantity: number;
+  unitValue: number;
+  subtotal: number;
+  discount: number;
+  totalAmount: number;
+}
+
+export interface ParsedMonthlyImport {
+  kardex: ParsedFile<ParsedKardexRow>;
+  recipes: ParsedFile<ParsedRecipeRow>;
+  sales: ParsedFile<ParsedSalesRow>;
+  waiterSales: ParsedFile<ParsedWaiterSalesRow>;
+}

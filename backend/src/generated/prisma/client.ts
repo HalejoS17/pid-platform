@@ -95,6 +95,41 @@ export type SupplierProduct = Prisma.SupplierProductModel
  */
 export type SupplierProductCost = Prisma.SupplierProductCostModel
 /**
+ * Model MonthlyImportBatch
+ * 
+ */
+export type MonthlyImportBatch = Prisma.MonthlyImportBatchModel
+/**
+ * Model MonthlyImportFile
+ * 
+ */
+export type MonthlyImportFile = Prisma.MonthlyImportFileModel
+/**
+ * Model MonthlyImportError
+ * 
+ */
+export type MonthlyImportError = Prisma.MonthlyImportErrorModel
+/**
+ * Model HistoricalKardexEntry
+ * 
+ */
+export type HistoricalKardexEntry = Prisma.HistoricalKardexEntryModel
+/**
+ * Model RecipeComponentSnapshot
+ * 
+ */
+export type RecipeComponentSnapshot = Prisma.RecipeComponentSnapshotModel
+/**
+ * Model SalesLine
+ * 
+ */
+export type SalesLine = Prisma.SalesLineModel
+/**
+ * Model WaiterSalesLine
+ * 
+ */
+export type WaiterSalesLine = Prisma.WaiterSalesLineModel
+/**
  * Model InventoryBalance
  * 
  */

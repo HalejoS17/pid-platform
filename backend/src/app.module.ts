@@ -15,6 +15,7 @@ import { ProductsModule } from './modules/products/products.module';
 import { SuppliersModule } from './modules/suppliers/suppliers.module';
 import { RestaurantsModule } from './modules/restaurants/restaurants.module';
 import { WarehousesModule } from './modules/warehouses/warehouses.module';
+import { MonthlyImportsModule } from './modules/monthly-imports/monthly-imports.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { WarehousesModule } from './modules/warehouses/warehouses.module';
     InventoryModule,
     PurchaseOrdersModule,
     GoodsReceiptsModule,
+    MonthlyImportsModule,
   ],
 
   providers: [
